@@ -10,7 +10,34 @@ class Application
     video_id = "R2u822BzQw8"
     video_data = get_video_data video_id
     streams = get_video_streams video_data
+    video_data_for_download = get_higher_resolution_video(streams)
+    download_higher_resolution_video(video_data_for_download, video_id)
 
+    if ! File.exist? 'downloads/' + video_id
+      Logger::debug 'File does not exist'
+      return false
+    end
+    Logger::debug 'File exist'
+
+    if ! system( get_reverse_video_command video_id )
+      Logger::debug 'video is not reverse'
+      return false
+    end
+    Logger::debug 'video is reverse'
+    return true
+  end
+
+  def download_higher_resolution_video(video_data_for_download, video_id)
+    File.open('downloads/' + video_id, "wb") do |saved_file|
+      # the following "open" is provided by open-uri
+      open(video_data_for_download['url'], "rb") do |read_file|
+        Logger::debug 'Saved file!'
+        saved_file.write(read_file.read)
+      end
+    end
+  end
+
+  def get_higher_resolution_video(streams)
     video_data_for_download = nil
     for video_data_quality in streams
       Logger::debug "-------------" \
@@ -27,27 +54,7 @@ class Application
     Logger::debug 'Video with the higher resolution'
     Logger::debug video_data_for_download.inspect
     Logger::debug ''
-
-    File.open('downloads/' + video_id, "wb") do |saved_file|
-      # the following "open" is provided by open-uri
-      open(video_data_for_download['url'], "rb") do |read_file|
-        Logger::debug 'Saved file!'
-        saved_file.write(read_file.read)
-      end
-    end
-
-    if File.exist? 'downloads/' + video_id
-      Logger::debug 'File exist'
-
-      if system( get_reverse_video_command video_id )
-        Logger::debug 'video is reverse'
-      else
-        Logger::debug 'video is not reverse'
-      end
-    else
-      Logger::debug 'File does not exist'
-    end
-
+    video_data_for_download
   end
 
   def checkIfResolutionIsHigher(video_data_for_download, video_data_quality)
@@ -74,7 +81,7 @@ class Application
   def get_video_streams(video_data)
     Logger::debug 'Get video streams'
     streams = video_data['url_encoded_fmt_stream_map'].first.split(',')
-    streams.map do |s|
+    streams.map! do |s|
       x = CGI.parse s
       x.each do |k,v|
         if k == 'type'
@@ -84,6 +91,7 @@ class Application
         end
       end
     end
+    Logger::debug 'Streams'
     Logger::debug streams.inspect
 
     streams
