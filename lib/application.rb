@@ -5,7 +5,7 @@ require_relative 'Logger'
 
 class Application
   YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
-
+  DOWNLOAD_FOLDER = 'downloads'
   def run
     video_id = "R2u822BzQw8"
     video_data = get_video_data video_id
@@ -13,7 +13,7 @@ class Application
     video_data_for_download = get_higher_resolution_video(streams)
     download_higher_resolution_video(video_data_for_download, video_id)
 
-    if ! File.exist? 'downloads/' + video_id
+    if ! File.exist? get_downloaded_video_path(video_id)
       Logger::debug 'File does not exist'
       return false
     end
@@ -27,8 +27,16 @@ class Application
     return true
   end
 
+  def get_downloaded_video_path(video_id)
+    Application::DOWNLOAD_FOLDER + '/' + video_id
+  end
+
+  def get_downloaded_video_path_reversed(video_id)
+    Application::DOWNLOAD_FOLDER + '/' + video_id + '-reversed.mp4'
+  end
+
   def download_higher_resolution_video(video_data_for_download, video_id)
-    File.open('downloads/' + video_id, "wb") do |saved_file|
+    File.open(get_downloaded_video_path(video_id), "wb") do |saved_file|
       # the following "open" is provided by open-uri
       open(video_data_for_download['url'], "rb") do |read_file|
         Logger::debug 'Saved file!'
@@ -98,7 +106,7 @@ class Application
   end
 
   def get_reverse_video_command video_id
-    'ffmpeg -i ./downloads/' + video_id + ' -vf "reverse,hflip" -af areverse ./downloads/' + video_id + '-reversed.mp4'
+    'ffmpeg -i ' + get_downloaded_video_path(video_id) + ' -vf "reverse,hflip" -af areverse ' + get_downloaded_video_path_reversed(video_id)
   end
 
 end
