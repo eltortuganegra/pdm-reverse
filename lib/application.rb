@@ -9,15 +9,7 @@ class Application
   def run
     video_id = "R2u822BzQw8"
     video_data = get_video_data video_id
-    Logger::debug 'Video data:'
-    Logger::debug video_data
-
-
-
-    Logger::debug ''
-    Logger::debug 'Get video streams'
     streams = get_video_streams video_data
-    Logger::debug streams.inspect
 
     video_data_for_download = nil
     for video_data_quality in streams
@@ -72,10 +64,15 @@ class Application
   end
 
   def get_video_data(video_id)
-    CGI.parse open(get_info_video_uri(video_id)).read
+    video_data = CGI.parse open(get_info_video_uri(video_id)).read
+    Logger::debug 'Video data:'
+    Logger::debug video_data.inspect
+
+    video_data
   end
 
   def get_video_streams(video_data)
+    Logger::debug 'Get video streams'
     streams = video_data['url_encoded_fmt_stream_map'].first.split(',')
     streams.map do |s|
       x = CGI.parse s
@@ -87,6 +84,9 @@ class Application
         end
       end
     end
+    Logger::debug streams.inspect
+
+    streams
   end
 
   def get_reverse_video_command video_id
