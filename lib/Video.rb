@@ -1,5 +1,5 @@
 class Video
-  @@YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
+  YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
   @video_id = nil
 
   def initialize(video_id = nil)
