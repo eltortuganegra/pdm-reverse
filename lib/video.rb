@@ -7,7 +7,7 @@ class Video
     @video_id = video_id
   end
 
-  def getVideoDataForDownload
+  def get_video_data_for_download
     video_data = get_video_data @video_id
     streams = get_video_streams video_data
     get_higher_resolution_video(streams)
@@ -52,7 +52,7 @@ class Video
            "Type: #{video_data_quality['type'].first}" \
            "URL:  #{video_data_quality['url']} \n\n"
 
-      if video_data_for_download.nil? || (checkIfResolutionIsHigher video_data_for_download, video_data_quality)
+      if video_data_for_download.nil? || (check_if_resolution_is_higher video_data_for_download, video_data_quality)
         Logger::debug 'Set this video'
         video_data_for_download = video_data_quality
       end
@@ -64,7 +64,7 @@ class Video
     video_data_for_download
   end
 
-  def checkIfResolutionIsHigher(video_data_for_download, video_data_quality)
+  def check_if_resolution_is_higher(video_data_for_download, video_data_quality)
 
     return (video_data_for_download['quality'] === 'hd1080') ||
         (video_data_for_download['quality'] === 'hd720' && video_data_quality['quality'] == 'hd1080') ||
@@ -74,7 +74,7 @@ class Video
   end
 
   def get_url_higher_resolution_video
-    getVideoDataForDownload['url']
+    get_video_data_for_download['url']
   end
 
 end

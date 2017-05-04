@@ -1,8 +1,8 @@
 require 'open-uri'
 require 'cgi'
 require 'net/http'
-require_relative 'Logger'
-require_relative 'Video'
+require_relative 'logger'
+require_relative 'video'
 require_relative 'file_manager'
 
 class Application
