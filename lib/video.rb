@@ -22,7 +22,7 @@ class Video
   end
 
   def get_info_video_uri(video_id)
-    Application::YOUTUBE_INFO_URI + video_id
+    Video::YOUTUBE_INFO_URI + video_id
   end
 
   def get_video_streams(video_data)

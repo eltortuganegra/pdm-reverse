@@ -20,6 +20,6 @@ class FileManager
   end
 
   def self.get_downloaded_video_path_reversed(video_id)
-    Application::DOWNLOAD_FOLDER + '/' + video_id + '-reversed.mp4'
+    FileManager::DOWNLOAD_FOLDER + '/' + video_id + '-reversed.mp4'
   end
 end

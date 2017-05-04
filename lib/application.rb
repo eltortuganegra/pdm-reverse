@@ -6,9 +6,6 @@ require_relative 'video'
 require_relative 'file_manager'
 
 class Application
-  YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
-  DOWNLOAD_FOLDER = 'downloads'
-
   def run
     video_id = "R2u822BzQw8"
     video = Video.new video_id
@@ -23,6 +20,7 @@ class Application
       Logger::debug 'video is not reverse'
       return false
     end
+
     Logger::debug 'video is reverse'
     return true
   end
