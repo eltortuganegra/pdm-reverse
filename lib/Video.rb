@@ -1,4 +1,5 @@
 class Video
+  attr_accessor :video_id
   YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
   @video_id = nil
 
@@ -70,6 +71,10 @@ class Video
         (video_data_for_download['quality'] === 'large' && (video_data_quality['quality'] === 'hd1080' || video_data_quality['quality'] === 'hd720')) ||
         (video_data_for_download['quality'] === 'medium' && (video_data_quality['quality'] === 'hd1080' || video_data_quality['quality'] === 'hd720' || video_data_quality['quality'] === 'large')) ||
         (video_data_for_download['quality'] === 'small' && (video_data_quality['quality'] === 'hd1080' || video_data_quality['quality'] === 'hd720' || video_data_quality['quality'] === 'large' || video_data_quality['quality'] === 'medium'))
+  end
+
+  def get_url_higher_resolution_video
+    getVideoDataForDownload['url']
   end
 
 end
