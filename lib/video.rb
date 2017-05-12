@@ -81,25 +81,26 @@ class Video
   end
 
   def uploadVideoToYoutube
-    options = getOptionsForUpload
-
-    Logger::debug options.inspect
-
-    if options[:file].nil? or not File.file?(options[:file])
-      Trollop::die :file, 'does not exist'
-    end
-
-    client, youtube = get_authenticated_service
-    Logger::debug client.inspect
-    Logger::debug youtube.inspect
 
 
+
+    # options = getOptionsForUpload
+    #
+    # Logger::debug options.inspect
+    #
+    # if options[:file].nil? or not File.file?(options[:file])
+    #   Trollop::die :file, 'does not exist'
+    # end
+    #
+    # client, youtube = get_authenticated_service
+    # Logger::debug client.inspect
+    # Logger::debug youtube.inspect
   end
 
   def getOptionsForUpload
     options = Trollop::options do
       opt :file, 'Video file to upload', :type => String,
-          :default => 'downloads/R2u822BzQw8-reversed.mp4'
+          :default => 'downloads/R2u822BzQw8-reversed.mov'
       opt :title, 'Video title', :type => String,
           :default => 'Test Title'
       opt :description, 'Video description',

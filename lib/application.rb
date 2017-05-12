@@ -4,20 +4,28 @@ require 'net/http'
 require 'trollop'
 
 require 'rubygems'
-gem 'google-api-client', '>0.7'
-require 'google/api_client'
-require 'google/api_client/client_secrets'
-require 'google/api_client/auth/file_storage'
-require 'google/api_client/auth/installed_app'
+# gem 'google-api-client', '>0.7'
+# require 'google/api_client'
+# require 'google/api_client/client_secrets'
+# require 'google/api_client/auth/file_storage'
+# require 'google/api_client/auth/installed_app'
+
+require 'google/apis/youtube_v3'
+require 'googleauth'
+require 'googleauth/stores/file_token_store'
+
 
 
 require_relative 'logger'
 require_relative 'video'
 require_relative 'file_manager'
+require_relative 'youtube_manager'
 
 class Application
   def run
-    video_id = "R2u822BzQw8"
+    #URI para coger los más populares
+    #https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E
+    video_id = "clcH15C2rjE"
     video = Video.new video_id
     # file_manager = FileManager.new
     # if ! file_manager.download_higher_resolution_video(video)
@@ -30,9 +38,10 @@ class Application
     #   Logger::debug 'video is not reverse'
     #   return false
     # end
-
     Logger::debug 'video is reverse'
-    video.uploadVideoToYoutube
+    file = '/var/www/pdm-reverse/' + FileManager::get_downloaded_video_path_reversed(video.video_id)
+    youtube = YoutubeManager.new
+    youtube.upload_video video, file
 
     return true
   end
