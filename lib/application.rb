@@ -25,7 +25,7 @@ class Application
   def run
     #URI para coger los más populares
     #https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E
-    video_id = "clcH15C2rjE"
+    video_id = "YIwuCs1Yovw"
     video = Video.new video_id
     # file_manager = FileManager.new
     # if ! file_manager.download_higher_resolution_video(video)
@@ -39,7 +39,7 @@ class Application
     #   return false
     # end
     Logger::debug 'video is reverse'
-    file = '/var/www/pdm-reverse/' + FileManager::get_downloaded_video_path_reversed(video.video_id)
+    file = '/var/www/ruby/pdm-reverse/' + FileManager::get_downloaded_video_path_reversed(video.video_id)
     youtube = YoutubeManager.new
     youtube.upload_video video, file
 
