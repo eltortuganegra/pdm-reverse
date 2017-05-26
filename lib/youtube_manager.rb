@@ -9,15 +9,15 @@ class YoutubeManager
     youtube.authorization = user_credentials_for(YT::AUTH_YOUTUBE)
     metadata  = {
         snippet: {
-            title: 'prueba'
+            title: video.video_id + ' [REVERSE]'
         },
         status: {
             privacy_status: 'unlisted'
         }
     }
-    # file = '/var/www/pdm-reverse/' + FileManager::get_downloaded_video_path_reversed(video.video_id)
-    # result = youtube.insert_video('snippet,status', metadata, upload_source: file)
-    result = youtube.insert_video('snippet,status', metadata, upload_source: file_path)
+
+    Logger::debug 'Uploading video: ' + file_path
+    result = youtube.insert_video('snippet,status', metadata, upload_source: file_path, content_type: "video/mp4")
     puts result.inspect
     puts "Upload complete"
   end
@@ -41,6 +41,7 @@ class YoutubeManager
     user_id = 'default'
     puts 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ'
     credentials = authorizer.get_credentials(user_id)
+    puts 'Check credentials'
     puts credentials.inspect
     if ! credentials.nil?
       puts 'expired_at: ' + credentials.expires_at.to_s
@@ -53,8 +54,7 @@ class YoutubeManager
       puts "Open the following URL in your browser and authorize the application."
       puts url
       # code = ask "Enter the authorization code:"
-      code = '4/XBzueoqPFIdhA5dorwn0k7A_lyl5Wi7GM60Dr3GzFd4'
-      code = '4/SFiD9Qljz07C3FtsuYLCWQ4j7zwZg_2hgcoRN78lSdw'
+      code = '4/jV4_ZJrmWwpNOTAZ4r_xjxRDdx4da6PjIIR8HGgtfoI'
       puts 'CODE:' + code
       credentials = authorizer.get_and_store_credentials_from_code(
           user_id: user_id, code: code, base_url: OOB_URI)
@@ -89,9 +89,9 @@ class YoutubeManager
 
   # Returns the path to the client_secrets.json file.
   def client_secrets_path
-    path = 'config/clients_secrets.example.json'
+    path = 'config/clients_secrets.json'
     return path if File.exist? path
     return ENV['GOOGLE_CLIENT_SECRETS'] if ENV.has_key?('GOOGLE_CLIENT_SECRETS')
-    return well_known_path_for('clients_secrets.example.json')
+    return well_known_path_for('clients_secrets.json')
   end
 end
