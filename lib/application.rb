@@ -19,14 +19,16 @@ require_relative 'video'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative '../config/config'
+require_relative 'google_authorization_manager'
 
 class Application
-  attr_accessor :config
+  attr_accessor :config, :google_authorization_manager
 
   def initialize
     begin
       config = Config.new
       checkIfFileClientsSecretsJsonExist(config)
+      @google_authorization_manager = GoogleAuthorizationManager.new
     rescue Exception => e
       Logger::error e.message
       abort
@@ -40,7 +42,7 @@ class Application
   def run
     #URI para coger los más populares
     #https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E
-    video_id = "giYeaKsXnsI"
+    video_id = "V602GMSSo0Y"
     video = Video.new video_id
 
     file_manager = FileManager.new
@@ -63,7 +65,7 @@ class Application
     Logger::debug 'Path: ' + file_path.inspect
 
 
-    youtube = YoutubeManager.new
+    youtube = YoutubeManager.new @google_authorization_manager
     youtube.upload_video video, file_path
 
     return true

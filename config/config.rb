@@ -2,7 +2,7 @@ class Config
   attr_accessor :root_path, :downloads_path, :lib_path, :clients_secrets_path
 
   def initialize
-    puts 'Initialize config'
+    Logger::debug 'Initialize config'
     setRootPath
     setDownloadsPath
     setLibPath
