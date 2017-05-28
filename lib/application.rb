@@ -24,7 +24,17 @@ class Application
   attr_accessor :config
 
   def initialize
-    @config = Config.new.inspect
+    begin
+      config = Config.new
+      checkIfFileClientsSecretsJsonExist(config)
+    rescue Exception => e
+      Logger::error e.message
+      abort
+    end
+  end
+
+  def checkIfFileClientsSecretsJsonExist(config)
+    raise 'clientes_secrets.json file not found at ' + config.clients_secrets_path if !File.exist? config.clients_secrets_path
   end
 
   def run
