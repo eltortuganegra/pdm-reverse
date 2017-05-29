@@ -1,5 +1,5 @@
 class Config
-  attr_accessor :root_path, :downloads_path, :lib_path, :clients_secrets_path
+  attr_accessor :root_path, :downloads_path, :lib_path, :clients_secrets_path, :credentials_code_path
 
   def initialize
     Logger::debug 'Initialize config'
@@ -7,6 +7,7 @@ class Config
     setDownloadsPath
     setLibPath
     setClientsSecretsPath
+    setCredentialsCodePath
   end
 
   def setLibPath
@@ -23,5 +24,9 @@ class Config
 
   def setClientsSecretsPath
     @clients_secrets_path = root_path.to_s + '/config/clients_secrets.json'
+  end
+
+  def setCredentialsCodePath
+    @credentials_code_path = root_path.to_s + '/config/credentials_code.json'
   end
 end

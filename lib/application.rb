@@ -20,15 +20,16 @@ require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative '../config/config'
 require_relative 'google_authorization_manager'
+require_relative '../lib/exceptions/credentials_code_not_found_exception'
 
 class Application
   attr_accessor :config, :google_authorization_manager
 
   def initialize
     begin
-      config = Config.new
-      checkIfFileClientsSecretsJsonExist(config)
-      @google_authorization_manager = GoogleAuthorizationManager.new
+      @config = Config.new
+      checkIfFileClientsSecretsJsonExist(@config)
+      @google_authorization_manager = GoogleAuthorizationManager.new(@config)
     rescue Exception => e
       Logger::error e.message
       abort
@@ -36,13 +37,13 @@ class Application
   end
 
   def checkIfFileClientsSecretsJsonExist(config)
-    raise 'clientes_secrets.json file not found at ' + config.clients_secrets_path if !File.exist? config.clients_secrets_path
+    raise 'clients_secrets.json file not found at ' + config.clients_secrets_path if !File.exist? config.clients_secrets_path
   end
 
   def run
     #URI para coger los más populares
     #https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E
-    video_id = "V602GMSSo0Y"
+    video_id = "StDQ_P99rPo"
     video = Video.new video_id
 
     file_manager = FileManager.new

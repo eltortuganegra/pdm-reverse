@@ -3,7 +3,7 @@ class GoogleAuthorizationManager
   OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
   attr_accessor :credentials
 
-  def initialize
+  def initialize(config)
     FileUtils.mkdir_p(File.dirname(token_store_path))
 
     if ENV['GOOGLE_CLIENT_ID']
@@ -20,7 +20,7 @@ class GoogleAuthorizationManager
     user_id = 'default'
 
     begin
-      storeCredentialsFromCredentialsCodeFile(authorizer, user_id)
+      storeCredentialsFromCredentialsCodeFile(authorizer, user_id, config.credentials_code_path)
       @credentials = authorizer.get_credentials(user_id)
 
       Logger::debug 'Check credentials'
@@ -29,6 +29,8 @@ class GoogleAuthorizationManager
         Logger::debug 'Now:        ' + Time.now.strftime("%Y-%m-%d %H:%M:%S")
         Logger::debug 'is less:        ' + (checkIfCredentialsIsExpired(@credentials)).to_s
       end
+    rescue CredentialsCodeNotFoundException => e
+      raise e
     rescue Exception => e
       if @credentials.nil? || checkIfCredentialsIsExpired(@credentials)
         url = authorizer.get_authorization_url(base_url: OOB_URI)
@@ -39,19 +41,24 @@ class GoogleAuthorizationManager
     end
   end
 
-  def storeCredentialsFromCredentialsCodeFile(authorizer, user_id)
+  def storeCredentialsFromCredentialsCodeFile(authorizer, user_id, credentials_code_path)
     # code = ask "Enter the authorization code:"
     # code = '4/jV4_ZJrmWwpNOTAZ4r_xjxRDdx4da6PjIIR8HGgtfoI'
-    credentials_code = '/var/www/ruby/pdm-reverse/config/credentials_code.txt'
-    if File.exist? credentials_code
-      code = File.read(credentials_code)
-      Logger::debug 'CODE:' + code
-      @credentials = authorizer.get_and_store_credentials_from_code(
-          user_id: user_id, code: code, base_url: OOB_URI)
-      Logger::debug "\nCredentials: "
-      Logger::debug credentials.inspect
-      Logger::debug ''
-    end
+    # credentials_code = '/var/www/ruby/pdm-reverse/config/credentials_code.txt'
+    raiseExceptionIfCredentialCodeJsonFileNotExist(credentials_code_path)
+    
+    code = File.read(credentials_code_path)
+    Logger::debug 'CODE:' + code
+    @credentials = authorizer.get_and_store_credentials_from_code(
+        user_id: user_id, code: code, base_url: OOB_URI)
+    Logger::debug "\nCredentials: "
+    Logger::debug credentials.inspect
+    Logger::debug ''
+
+  end
+
+  def raiseExceptionIfCredentialCodeJsonFileNotExist(credentials_code_path)
+    raise CredentialsCodeNotFoundException.new if !File.exist? credentials_code_path
   end
 
   def showUrlForGetCredentialCode(url)
