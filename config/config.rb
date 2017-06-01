@@ -5,6 +5,7 @@ class Config
   def initialize
     Logger::debug 'Initialize config'
     setRootPath
+    Logger::debug 'Initialize config'
     setDownloadsPath
     setLibPath
     setClientsSecretsPath
@@ -13,26 +14,26 @@ class Config
   end
 
   def setRuntimePath
-    runtime root_path.to_s + '/runtime'
+    @runtime = root_path.to_s + '/runtime'
   end
 
   def setLibPath
-    lib_path root_path.to_s + '/lib'
+    @lib_path = root_path.to_s + '/lib'
   end
 
   def setDownloadsPath
-    downloads_path root_path.to_s + '/downloads'
+    @downloads_path = root_path.to_s + '/downloads'
   end
 
   def setRootPath
-    root_path File.absolute_path(File.dirname(__FILE__) + '/..')
+    @root_path =  File.absolute_path(File.dirname(__FILE__) + '/..')
   end
 
   def setClientsSecretsPath
-    clients_secrets_path root_path.to_s + '/config/clients_secrets.json'
+    @clients_secrets_path = root_path.to_s + '/config/clients_secrets.json'
   end
 
   def setCredentialsCodePath
-    credentials_code_path root_path.to_s + '/config/credentials_code.json'
+    @credentials_code_path = root_path.to_s + '/config/credentials_code.json'
   end
 end
