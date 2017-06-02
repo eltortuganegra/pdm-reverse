@@ -4,6 +4,7 @@ class GoogleAuthorizationManager
   attr_accessor :credentials
 
   def initialize(config)
+    Logger::debug 'Creating token store path at: ' + token_store_path
     FileUtils.mkdir_p(File.dirname(token_store_path))
 
     if ENV['GOOGLE_CLIENT_ID']
@@ -18,20 +19,35 @@ class GoogleAuthorizationManager
     token_store = Google::Auth::Stores::FileTokenStore.new(:file => token_store_path)
     authorizer = Google::Auth::UserAuthorizer.new(client_id, YT::AUTH_YOUTUBE, token_store)
     user_id = 'default'
+    puts token_store.inspect
+    puts authorizer
+
 
     begin
       storeCredentialsFromCredentialsCodeFile(authorizer, user_id, config.credentials_code_path)
       @credentials = authorizer.get_credentials(user_id)
 
       Logger::debug 'Check credentials'
+      Logger::debug @credentials.inspect
       if ! @credentials.nil?
         Logger::debug 'expired_at: ' + @credentials.expires_at.to_s
         Logger::debug 'Now:        ' + Time.now.strftime("%Y-%m-%d %H:%M:%S")
         Logger::debug 'is less:        ' + (checkIfCredentialsIsExpired(@credentials)).to_s
+        File.write(config.runtime_path + '/credentials.json', {
+            :expired_at => @credentials.expires_at,
+            :scope => @credentials.scope,
+            :access_token => @credentials.access_token,
+            :refresh_token => @credentials.refresh_token
+        }.to_json)
       end
     rescue CredentialsCodeNotFoundException => e
       raise e
     rescue Exception => e
+
+      Logger::debug 'ZZZZZZ'
+      Logger::debug e.inspect
+      Logger::debug @credentials.inspect
+
       if @credentials.nil? || checkIfCredentialsIsExpired(@credentials)
         url = authorizer.get_authorization_url(base_url: OOB_URI)
         # puts "Open the following URL in your browser and authorize the application."
@@ -49,12 +65,18 @@ class GoogleAuthorizationManager
     
     code = File.read(credentials_code_path)
     Logger::debug 'CODE:' + code
+    begin
     @credentials = authorizer.get_and_store_credentials_from_code(
         user_id: user_id, code: code, base_url: OOB_URI)
     Logger::debug "\nCredentials: "
     Logger::debug credentials.inspect
     Logger::debug ''
+    rescue Exception => e
+      Logger::debug 'Token is expired'
+      Logger::debug @credentials.inspect
+      Logger::debug e.inspect
 
+    end
   end
 
   def raiseExceptionIfCredentialCodeJsonFileNotExist(credentials_code_path)

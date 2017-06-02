@@ -1,6 +1,6 @@
 class Config
   attr_accessor :root_path, :downloads_path, :lib_path, :clients_secrets_path, :credentials_code_path,
-                :runtime
+                :runtime_path
 
   def initialize
     Logger::debug 'Initialize config'
@@ -14,7 +14,7 @@ class Config
   end
 
   def setRuntimePath
-    @runtime = root_path.to_s + '/runtime'
+    @runtime_path = root_path.to_s + '/runtime'
   end
 
   def setLibPath
