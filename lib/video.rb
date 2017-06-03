@@ -1,31 +1,32 @@
 class Video
-  attr_accessor :video_id
+  attr_accessor :video_id,
+                :youtube_id
   YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
   YOUTUBE_UPLOAD_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
   YOUTUBE_API_SERVICE_NAME = 'youtube'
   YOUTUBE_API_VERSION = 'v3'
   @video_id = nil
 
-  def initialize(video_id = nil)
-    @video_id = video_id
+  def initialize(youtube_id = nil)
+    @youtube_id = youtube_id
   end
 
   def get_video_data_for_download
-    video_data = get_video_data @video_id
+    video_data = get_video_data @youtube_id
     streams = get_video_streams video_data
     get_higher_resolution_video(streams)
   end
 
-  def get_video_data(video_id)
-    video_data = CGI.parse open(get_info_video_uri(video_id)).read
+  def get_video_data(youtube_id)
+    video_data = CGI.parse open(get_info_video_uri(youtube_id)).read
     Logger::debug 'Video data:'
     Logger::debug video_data.inspect
 
     video_data
   end
 
-  def get_info_video_uri(video_id)
-    Video::YOUTUBE_INFO_URI + video_id
+  def get_info_video_uri(youtube_id)
+    Video::YOUTUBE_INFO_URI + youtube_id
   end
 
   def get_video_streams(video_data)

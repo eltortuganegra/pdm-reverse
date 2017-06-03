@@ -5,7 +5,7 @@ class Config
   def initialize
     Logger::debug 'Initialize config'
     setRootPath
-    Logger::debug 'Initialize config'
+    Logger::debug @root_path
     setDownloadsPath
     setLibPath
     setClientsSecretsPath

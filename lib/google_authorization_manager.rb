@@ -60,7 +60,7 @@ class GoogleAuthorizationManager
   def storeCredentialsFromCredentialsCodeFile(authorizer, user_id, credentials_code_path)
     # code = ask "Enter the authorization code:"
     # code = '4/jV4_ZJrmWwpNOTAZ4r_xjxRDdx4da6PjIIR8HGgtfoI'
-    # credentials_code = '/var/www/ruby/pdm-reverse/config/credentials_code.txt'
+    # credentials_code = '/var/www/ruby/pdm-reverse/config/credentials_code.json'
     raiseExceptionIfCredentialCodeJsonFileNotExist(credentials_code_path)
     
     code = File.read(credentials_code_path)

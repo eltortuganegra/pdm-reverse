@@ -1,7 +1,6 @@
 require 'open-uri'
 require 'cgi'
 require 'net/http'
-require 'trollop'
 require 'json'
 
 require 'rubygems'
@@ -19,18 +18,26 @@ require_relative 'logger'
 require_relative 'video'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
+require_relative 'converter_manager'
+require_relative 'downloads_manager'
 require_relative '../config/config'
 require_relative 'google_authorization_manager'
 require_relative '../lib/exceptions/credentials_code_not_found_exception'
 
 class Application
-  attr_accessor :config, :google_authorization_manager
+  attr_accessor :config,
+                :google_authorization_manager,
+                :downloads_manager,
+                :converter_manager
 
   def initialize
     begin
       @config = Config.new
       checkIfFileClientsSecretsJsonExist(@config)
       @google_authorization_manager = GoogleAuthorizationManager.new(@config)
+      @downloads_manager = DownloadsManager.new @config
+      @converter_manager = ConverterManager.new @config
+
     rescue Exception => e
       Logger::error e.message
       Logger::error e.inspect
@@ -45,25 +52,23 @@ class Application
   def run
     #URI para coger los más populares
     #https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E
-    video_id = "mpCGmaZgyBo
-"
-    video = Video.new video_id
+    youtube_id = "5PqIwh_LxCg"
+    video = Video.new youtube_id
 
-    file_manager = FileManager.new
-    if ! file_manager.download_higher_resolution_video(video)
-      Logger::debug 'File does not exist'
+    if ! @downloads_manager.download(video)
+      Logger::debug 'Video has not been downloaded'
       return false
     end
-    Logger::debug 'File exist'
+    Logger::debug 'Video has been downloaded'
 
-    if ! system(get_reverse_video_command video_id )
-      Logger::debug 'video is not reverse'
-      return false
-    end
-    Logger::debug 'video is reverse'
+    Logger::debug 'Convert video'
+    return false if ! @converter_manager.convert video
+
+
+
 
     Logger::debug 'Uploading video'
-    file_path = FileManager::get_downloaded_video_path_reversed(video.video_id)
+    file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
 
     Logger::debug 'SSSSSSSSSSSSSSSSS: '
     Logger::debug 'Path: ' + file_path.inspect
@@ -73,10 +78,6 @@ class Application
     youtube.upload_video video, file_path
 
     return true
-  end
-
-  def get_reverse_video_command video_id
-    'ffmpeg -i ' + FileManager::get_downloaded_video_path(video_id) + ' -vf "reverse,hflip" -af areverse ' + FileManager::get_downloaded_video_path_reversed(video_id)
   end
 
 end

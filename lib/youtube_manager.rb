@@ -1,6 +1,7 @@
 class YoutubeManager
   YT = Google::Apis::YoutubeV3
   OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
+  GOOGLE_API_YOUTUBE_TRENDS_URL = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key='
 
   attr_accessor :google_authorization_manager
 
@@ -16,7 +17,7 @@ class YoutubeManager
     Logger::debug @google_authorization_manager.credentials.inspect
     metadata  = {
         snippet: {
-            title: video.video_id + ' [REVERSE]'
+            title: video.youtube_id + ' [REVERSE]'
         },
         status: {
             privacy_status: 'unlisted'
@@ -27,6 +28,11 @@ class YoutubeManager
     result = youtube.insert_video('snippet,status', metadata, upload_source: file_path, content_type: "video/mp4")
     puts result.inspect
     puts "Upload complete"
+  end
+
+  def getTrends
+    uri = URI(GOOGLE_API_YOUTUBE_TRENDS_URL + 'AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E')
+    Net::HTTP.get(uri)
   end
 
 end
