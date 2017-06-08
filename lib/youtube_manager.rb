@@ -33,42 +33,8 @@ class YoutubeManager
   end
 
   def getTrends
-    # initialVideoList = apiRequestVideoList
     youtubeTrends = YoutubeTrends.new
     youtubeTrends.apiRequestVideoList
-  end
-
-  def apiRequestVideoList params = nil
-    uri = getUriTrendsVideo
-    Net::HTTP.get(uri)
-  end
-
-  def getUriTrendsVideo params = nil
-    queryString = buildQueryString params
-    puts queryString
-    uri = URI(GOOGLE_API_YOUTUBE_TRENDS_URL + queryString)
-  end
-
-  def getDefaultParamsQueryString
-    {
-        :part => 'contentDetails',
-        :chart => 'mostPopular',
-        :regionCode => 'IN',
-        :maxResults => 50,
-        :key => 'AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E'
-    }
-  end
-
-  def buildQueryString params
-    defaulfParams = getDefaultParamsQueryString
-    puts defaulfParams.inspect
-    defaulfParams.merge(params) if ! params.nil?
-    query = ''
-    defaulfParams.each {|key, value|
-      query += '&' + key.to_s + '=' + value.to_s
-    }
-
-    '?' + query[1, query.length]
   end
 
 end
