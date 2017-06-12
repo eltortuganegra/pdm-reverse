@@ -6,8 +6,29 @@ class YoutubeTrends
   end
 
   def apiRequestVideoList params = nil
-    uri = getUriTrendsVideo
-    response = Net::HTTP.get(uri)
+    item_list = []
+    next_page_token = nil;
+    counter = 6
+
+    while counter > 0 do
+      uri = getUriTrendsVideo({:pageToken => next_page_token})
+      puts 'URI: ' + uri.to_s
+      response = Net::HTTP.get(uri)
+      parsed_response = JSON.parse(response)
+      puts 'parsed_response:'
+      puts parsed_response.inspect
+      puts 'it\'s done'
+      item_list << parsed_response['items']
+
+      puts 'Check next page'
+      puts (parsed_response.key?('nextPageToken')).inspect
+      break if ! parsed_response.key?('nextPageToken')
+      next_page_token = parsed_response['nextPageToken']
+      puts 'Token:' + parsed_response['nextPageToken']
+      counter -= 1
+    end
+
+    item_list
   end
 
   def getUriTrendsVideo params = nil
@@ -27,13 +48,16 @@ class YoutubeTrends
 
   def buildQueryString params
     defaulfParams = getDefaultParamsQueryString
-    puts defaulfParams.inspect
-    defaulfParams.merge(params) if ! params.nil?
-    query = ''
-    defaulfParams.each {|key, value|
-      query += '&' + key.to_s + '=' + value.to_s
-    }
+    parameters_for_query = defaulfParams.merge(params)
 
-    '?' + query[1, query.length]
+    query_string = ''
+    parameters_for_query.each {|key, value|
+      if ! value.nil?
+        query_string += '&' + key.to_s + '=' + value.to_s
+      end
+    }
+    puts 'query_string: ' + query_string
+
+    '?' + query_string[1, query_string.length]
   end
 end
