@@ -18,7 +18,9 @@ class YoutubeTrends
       puts 'parsed_response:'
       puts parsed_response.inspect
       puts 'it\'s done'
-      item_list << parsed_response['items']
+      item_list.push(*parsed_response['items'])
+      puts 'item_list values:'
+      puts item_list.inspect
 
       puts 'Check next page'
       puts (parsed_response.key?('nextPageToken')).inspect
