@@ -23,6 +23,7 @@ require_relative './models/youtube_trend'
 require_relative './models/youtube_trend_status'
 require_relative '../lib/exceptions/credentials_code_not_found_exception'
 require_relative '../lib/exceptions/video_has_not_been_reversed_exception'
+require_relative '../lib/exceptions/youtube_trend_with_pending_of_process_status_not_found_exception'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative 'converter_manager'
@@ -61,14 +62,25 @@ class Application
     #https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E
 
     # youtube_id = "JBiZX_ceqO0"
-    youtube_trend = select_youtube_trend_video_for_process
-    process_youtube_trend youtube_trend
+    while true
+      begin
+        youtube_trend = select_youtube_trend_video_for_process
+        process_youtube_trend youtube_trend
+      rescue YoutubeTrendWithPendingOfProcessStatusNotFoundException => e
+        Logger::debug 'Exception:'
+        Logger::debug e.message
+        break;
+      end
+    end
   end
 
   def select_youtube_trend_video_for_process
     youtube_trend = YoutubeTrend.where(youtube_trends_status_id: YoutubeTrendStatus::PENDING_OF_PROCESS).order(duration_in_seconds: :asc).limit(1).first
+    # youtube_trend = YoutubeTrend.where(youtube_trends_id: 999999).order(duration_in_seconds: :asc).limit(1).first
     # youtube_trend = YoutubeTrend.where(youtube_trends_id: 486).order(duration_in_seconds: :asc).limit(1).first
     Logger::debug 'Youtube id INSPECT: ' + youtube_trend.inspect
+    raise YoutubeTrendWithPendingOfProcessStatusNotFoundException if youtube_trend.nil?
+
     Logger::debug 'Youtube id: ' + youtube_trend.youtube_id
 
     youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::IN_PROCESS
@@ -135,6 +147,7 @@ class Application
     else
       puts 'Youtbe trend status updated can not update to: UPLOADED_TO_YOUTUBE'
     end
+
   end
 
 end
