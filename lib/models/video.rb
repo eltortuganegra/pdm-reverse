@@ -1,10 +1,12 @@
 class Video
   attr_accessor :video_id,
                 :youtube_id
+
   YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
   YOUTUBE_UPLOAD_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
   YOUTUBE_API_SERVICE_NAME = 'youtube'
   YOUTUBE_API_VERSION = 'v3'
+
   @video_id = nil
 
   def initialize(youtube_id = nil)

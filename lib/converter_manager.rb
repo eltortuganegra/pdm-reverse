@@ -6,11 +6,11 @@ class ConverterManager
 
   def convert video
     if ! system(get_reverse_video_command video.youtube_id)
-      Logger::debug 'video is not reverse'
-      return false
+      raise VideoHasNotBeenReversed.new
     end
 
     Logger::debug 'Video is converted'
+
     return true
   end
 
