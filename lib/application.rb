@@ -148,6 +148,9 @@ class Application
       puts 'Youtbe trend status updated can not update to: UPLOADED_TO_YOUTUBE'
     end
 
+    File.delete(file_path)
+    File.delete(@downloads_manager.get_downloaded_video_path(video))
+
   end
 
 end
