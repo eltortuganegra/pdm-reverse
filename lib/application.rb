@@ -24,6 +24,7 @@ require_relative './models/youtube_trend_status'
 require_relative '../lib/exceptions/credentials_code_not_found_exception'
 require_relative '../lib/exceptions/video_has_not_been_reversed_exception'
 require_relative '../lib/exceptions/youtube_trend_with_pending_of_process_status_not_found_exception'
+require_relative '../lib/exceptions/video_data_for_download_fail_exception'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative 'converter_manager'
@@ -98,6 +99,19 @@ class Application
         # youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::FAIL_TO_DOWNLOAD_BY_403_HTTP_CODE_STATUS
 
       end
+    rescue VideoDataForDownloadFailException => e
+      Logger::debug 'Video has not been downloaded'
+      Logger::debug 'Video data for download is failing:'
+      Logger::debug e.message
+
+      youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::FAIL_TO_DOWNLOAD_BY_FAIL_STATUS
+      if ! youtube_trend.save!
+        Logger::debug youtube_trend.errors.full_messages
+      else
+        Logger::debug 'saved'
+        Logger::debug youtube_trend.inspect
+      end
+
     rescue OpenURI::HTTPError => e
       Logger::debug 'Video has not been downloaded'
       Logger::debug 'HTTP Error: ' + e.message
@@ -133,23 +147,33 @@ class Application
     end
 
 
+    begin
     Logger::debug 'Uploading video'
     file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
 
-    Logger::debug 'SSSSSSSSSSSSSSSSS: '
     Logger::debug 'Path: ' + file_path.inspect
 
     youtube = YoutubeManager.new @google_authorization_manager
     youtube.upload_video video, file_path
     youtube_trend.youtube_trends_status_id= YoutubeTrendStatus::UPLOADED_TO_YOUTUBE
     if youtube_trend.save
-      puts 'Youtbe trend status updated to: UPLOADED_TO_YOUTUBE'
+      puts 'Youtube trend status updated to: UPLOADED_TO_YOUTUBE'
     else
-      puts 'Youtbe trend status updated can not update to: UPLOADED_TO_YOUTUBE'
+      puts 'Youtube trend status updated can not update to: UPLOADED_TO_YOUTUBE'
     end
 
+    rescue Google::Apis::ClientError => e
+      Logger::debug 'Exception::' + e.message
+
+    end
+
+    Logger::debug 'Deleting original video: ' + file_path
     File.delete(file_path)
-    File.delete(@downloads_manager.get_downloaded_video_path(video))
+    Logger::debug 'Deleting processed video: ' + @downloads_manager.get_downloaded_video_path(video.youtube_id)
+    File.delete(@downloads_manager.get_downloaded_video_path(video.youtube_id))
+
+
+
 
   end
 

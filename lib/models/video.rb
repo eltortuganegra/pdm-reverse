@@ -15,6 +15,11 @@ class Video
 
   def get_video_data_for_download
     video_data = get_video_data @youtube_id
+    if (video_data.key?('status') && video_data['status'] == ['fail'])
+      Logger::debug 'Status: fail. Reason: ' + video_data['reason'].to_s
+      raise VideoDataForDownloadFailException.new('Status: ' + video_data['reason'].to_s + '. Errorcode: ' + video_data['reason'].to_s + '. Reason: ' + video_data['reason'].to_s)
+    end
+
     streams = get_video_streams video_data
     get_higher_resolution_video(streams)
   end
