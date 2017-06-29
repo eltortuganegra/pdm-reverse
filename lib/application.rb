@@ -25,6 +25,7 @@ require_relative '../lib/exceptions/credentials_code_not_found_exception'
 require_relative '../lib/exceptions/video_has_not_been_reversed_exception'
 require_relative '../lib/exceptions/youtube_trend_with_pending_of_process_status_not_found_exception'
 require_relative '../lib/exceptions/video_data_for_download_fail_exception'
+require_relative '../lib/exceptions/youtube_upload_limit_exceeded_exception'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative 'converter_manager'
@@ -65,7 +66,7 @@ class Application
     # youtube_id = "JBiZX_ceqO0"
     while true
       begin
-        youtube_trend = select_youtube_trend_video_for_process
+        youtube_trend = select_youtube_trend_video_for_process        
         process_youtube_trend youtube_trend
       rescue YoutubeTrendWithPendingOfProcessStatusNotFoundException => e
         Logger::debug 'Exception:'
@@ -91,14 +92,21 @@ class Application
   end
 
   def process_youtube_trend youtube_trend
-    video = Video.new youtube_trend.youtube_id
-
     begin
-      if ! @downloads_manager.download(video)
+      Logger::debug ""
+      Logger::debug ""
+      Logger::debug "------------------"
+      Logger::debug "Youtube trend: " + youtube_trend.youtube_id
+      Logger::debug "------------------"
+      Logger::debug ""
+      Logger::debug ""
+      video = createNewVideo(youtube_trend)
+      downloadVideo(video)
+      processTheDownloadedVideo(video)
+      file_path = uploadProcessedVideoToYoutube(video)
+      updateStatusToUploadedToYoutube(youtube_trend)
+      deleteTemporalVideos(file_path, video)
 
-        # youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::FAIL_TO_DOWNLOAD_BY_403_HTTP_CODE_STATUS
-
-      end
     rescue VideoDataForDownloadFailException => e
       Logger::debug 'Video has not been downloaded'
       Logger::debug 'Video data for download is failing:'
@@ -132,49 +140,90 @@ class Application
       end
 
       return false
-    end
-
-    Logger::debug 'Video has been downloaded'
-
-    Logger::debug 'Convert video'
-    begin
-      @converter_manager.convert video
     rescue VideoHasNotBeenReversed => e
       youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::FAIL_TO_REVERSE
       if ! youtube_trend.save
         Logger::debug 'Youtube_trend is not save'
       end
+    rescue Google::Apis::ClientError => e
+      Logger::debug 'Exception: ' + e.message
+      raise YoutubeUploadLimitExceededException.new
+    ensure
+      Logger::debug 'ENSURE'
+
     end
 
+    # Logger::debug 'Video has been downloaded'
+    #
+    # Logger::debug 'Convert video'
+    # begin
+    #   @converter_manager.convert video
+    # rescue VideoHasNotBeenReversed => e
+    #   youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::FAIL_TO_REVERSE
+    #   if ! youtube_trend.save
+    #     Logger::debug 'Youtube_trend is not save'
+    #   end
+    # end
 
-    begin
-    Logger::debug 'Uploading video'
-    file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
 
-    Logger::debug 'Path: ' + file_path.inspect
+    # begin
+    # Logger::debug 'Uploading video'
+    # file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
+    #
+    # Logger::debug 'Path: ' + file_path.inspect
+    #
+    # youtube = YoutubeManager.new @google_authorization_manager
+    # youtube.upload_video video, file_path
+    # youtube_trend.youtube_trends_status_id= YoutubeTrendStatus::UPLOADED_TO_YOUTUBE
+    # if youtube_trend.save
+    #   puts 'Youtube trend status updated to: UPLOADED_TO_YOUTUBE'
+    # else
+    #   puts 'Youtube trend status updated can not update to: UPLOADED_TO_YOUTUBE'
+    # end
 
-    youtube = YoutubeManager.new @google_authorization_manager
-    youtube.upload_video video, file_path
+    # rescue Google::Apis::ClientError => e
+    #   Logger::debug 'Exception::' + e.message
+    #
+    # end
+
+
+  end
+
+  def updateStatusToUploadedToYoutube(youtube_trend)
     youtube_trend.youtube_trends_status_id= YoutubeTrendStatus::UPLOADED_TO_YOUTUBE
     if youtube_trend.save
       puts 'Youtube trend status updated to: UPLOADED_TO_YOUTUBE'
     else
       puts 'Youtube trend status updated can not update to: UPLOADED_TO_YOUTUBE'
     end
+  end
 
-    rescue Google::Apis::ClientError => e
-      Logger::debug 'Exception::' + e.message
+  def uploadProcessedVideoToYoutube(video)
+    Logger::debug 'Uploading video'
+    file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
+    Logger::debug 'Path: ' + file_path.inspect
+    youtube = YoutubeManager.new @google_authorization_manager
+    youtube.upload_video video, file_path
+    file_path
+  end
 
-    end
+  def processTheDownloadedVideo(video)
+    @converter_manager.convert video
+  end
 
+  def downloadVideo(video)
+    @downloads_manager.download(video)
+  end
+
+  def createNewVideo(youtube_trend)
+    video = Video.new youtube_trend.youtube_id
+  end
+
+  def deleteTemporalVideos(file_path, video)
     Logger::debug 'Deleting original video: ' + file_path
     File.delete(file_path)
     Logger::debug 'Deleting processed video: ' + @downloads_manager.get_downloaded_video_path(video.youtube_id)
     File.delete(@downloads_manager.get_downloaded_video_path(video.youtube_id))
-
-
-
-
   end
 
 end
