@@ -27,11 +27,7 @@ class Video
       raise VideoDataForDownloadFailException.new('Status: ' + video_data['reason'].to_s + '. Errorcode: ' + video_data['reason'].to_s + '. Reason: ' + video_data['reason'].to_s)
     end
 
-
-
-
     setVideoAttributes(video_data)
-
 
     privacy_status = Video::DEFAULT_PRIVACY_STATUS
     streams = get_video_streams video_data
