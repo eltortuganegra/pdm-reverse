@@ -1,13 +1,20 @@
 class Video
   attr_accessor :video_id,
-                :youtube_id
+                :youtube_id,
+                :title,
+                :description,
+                :category_id,   # https://developers.google.com/youtube/v3/docs/videoCategories/list
+                :keywords,      # 'Video keywords, comma-separated',
+                :privacy_status # public | private | unlisted
 
+  #https://developers.google.com/youtube/v3/docs/videos/list
   YOUTUBE_INFO_URI= 'http://youtube.com/get_video_info?video_id='
   YOUTUBE_UPLOAD_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
   YOUTUBE_API_SERVICE_NAME = 'youtube'
   YOUTUBE_API_VERSION = 'v3'
+  DEFAULT_PRIVACY_STATUS = 'private'
 
-  @video_id = nil
+
 
   def initialize(youtube_id = nil)
     @youtube_id = youtube_id
@@ -20,8 +27,33 @@ class Video
       raise VideoDataForDownloadFailException.new('Status: ' + video_data['reason'].to_s + '. Errorcode: ' + video_data['reason'].to_s + '. Reason: ' + video_data['reason'].to_s)
     end
 
+
+
+
+    setVideoAttributes(video_data)
+
+
+    privacy_status = Video::DEFAULT_PRIVACY_STATUS
     streams = get_video_streams video_data
     get_higher_resolution_video(streams)
+  end
+
+  def setVideoAttributes(video_data)
+    @title = video_data['title'][0] + ' [REVERSE]'
+    description = video_data.key?('description') ? video_data['description'][0] : ''
+    @description = "Original: https://www.youtube.com/watch?v=" + @youtube_id + "\n\n" + description
+    @keywords = video_data['keywords'][0] + ', reverse'
+    @category_id = ''
+
+
+    Logger::debug ""
+    Logger::debug "Fill the video attributes:"
+    Logger::debug "title: " + @title
+    Logger::debug "description: " + @description
+    Logger::debug "keywords: " + @keywords
+    Logger::debug "category_id: " + @category_id
+
+
   end
 
   def get_video_data(youtube_id)

@@ -19,7 +19,10 @@ class YoutubeManager
     Logger::debug @google_authorization_manager.credentials.inspect
     metadata  = {
         snippet: {
-            title: video.youtube_id + ' [REVERSE]'
+            # title: video.youtube_id + ' [REVERSE]'
+            title: video.title,
+            description: video.description,
+            keywords: video.keywords
         },
         status: {
             privacy_status: 'unlisted'
