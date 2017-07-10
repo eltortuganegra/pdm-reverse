@@ -3,5 +3,6 @@ ActiveRecord::Base.establish_connection(
     host:     'localhost',
     database: 'pdm-reverse',
     username: 'your_username',
-    password: 'your_password'
+    password: 'your_password',
+    collation: 'utf8mb4_unicode_ci'
 )
