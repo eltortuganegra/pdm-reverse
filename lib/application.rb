@@ -26,6 +26,7 @@ require_relative '../lib/exceptions/video_has_not_been_reversed_exception'
 require_relative '../lib/exceptions/youtube_trend_with_pending_of_process_status_not_found_exception'
 require_relative '../lib/exceptions/video_data_for_download_fail_exception'
 require_relative '../lib/exceptions/youtube_upload_limit_exceeded_exception'
+require_relative '../lib/exceptions/youtube_upload_invalid_or_empty_video_title_exception'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative 'converter_manager'
@@ -99,6 +100,7 @@ class Application
       file_path = uploadProcessedVideoToYoutube(video)
       updateStatusToUploadedToYoutube(youtube_trend)
       deleteTemporalVideos(file_path, video)
+
     rescue VideoDataForDownloadFailException => e
       Logger::debug 'Video has not been downloaded'
       Logger::debug 'Video data for download is failing:'
@@ -131,10 +133,22 @@ class Application
         Logger::debug 'Youtube_trend is not save'
       end
     rescue Google::Apis::ClientError => e
-      Logger::debug 'Exception: ' + e.message
-      raise YoutubeUploadLimitExceededException.new
+      Logger::debug '[Exception]' + e.message
+
+      if ! e.message.index('invalidTitle').nil?
+        youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::FAIL_UPLOAD_INVALID_TITLE
+        if ! youtube_trend.save!
+          Logger::debug youtube_trend.errors.full_messages
+        else
+          Logger::debug 'saved'
+          Logger::debug youtube_trend.inspect
+        end
+      else
+        raise YoutubeUploadLimitExceededException.new
+      end
     ensure
       Logger::debug 'ENSURE'
+
     end
   end
 
@@ -153,6 +167,7 @@ class Application
     Logger::debug 'Path: ' + file_path.inspect
     youtube = YoutubeManager.new @google_authorization_manager
     youtube.upload_video video, file_path
+
     file_path
   end
 
@@ -165,14 +180,15 @@ class Application
   end
 
   def createNewVideo(youtube_trend)
-    video = Video.new youtube_trend.youtube_id
+    video = Video.new youtube_trend
   end
 
   def deleteTemporalVideos(file_path, video)
     Logger::debug 'Deleting original video: ' + file_path
-    File.delete(file_path)
-    Logger::debug 'Deleting processed video: ' + @downloads_manager.get_downloaded_video_path(video.youtube_id)
-    File.delete(@downloads_manager.get_downloaded_video_path(video.youtube_id))
+    File.delete(file_path) if File.exists?(file_path)
+    downloaded_video_path = @downloads_manager.get_downloaded_video_path(video.youtube_id)
+    Logger::debug 'Deleting processed video: ' + downloaded_video_path
+    File.delete(downloaded_video_path) if File.exists?(downloaded_video_path)
   end
 
 end

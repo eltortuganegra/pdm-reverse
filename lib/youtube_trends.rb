@@ -18,10 +18,10 @@ class YoutubeTrends
       puts 'parsed_response:'
       puts parsed_response.inspect
       puts 'it\'s done'
+
       item_list.push(*parsed_response['items'])
       puts 'item_list values:'
       puts item_list.inspect
-
       puts 'Check next page'
       puts (parsed_response.key?('nextPageToken')).inspect
       break if ! parsed_response.key?('nextPageToken')
@@ -40,7 +40,7 @@ class YoutubeTrends
 
   def getDefaultParamsQueryString
     {
-        :part => 'contentDetails',
+        :part => 'contentDetails, snippet',
         :chart => 'mostPopular',
         :regionCode => 'IN',
         :maxResults => MAX_RESULTS_PER_REQUEST,

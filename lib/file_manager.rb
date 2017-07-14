@@ -26,4 +26,8 @@ class FileManager
   def self.get_downloaded_video_path_reversed(video_id)
     Dir.pwd + '/' + FileManager::DOWNLOAD_FOLDER + '/' + video_id + '.mp4'
   end
+
+  def delete_downloaded_video_path(video)
+
+  end
 end

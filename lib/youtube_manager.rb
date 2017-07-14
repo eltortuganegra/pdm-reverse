@@ -12,27 +12,35 @@ class YoutubeManager
   end
 
   def upload_video(video, file_path)
+    Logger::debug 'youtube manager -> upload_video'
     Logger::debug video.inspect
     Google::Apis.logger.level = Logger::DEBUG
     youtube = YT::YouTubeService.new
     youtube.authorization = @google_authorization_manager.credentials
     Logger::debug @google_authorization_manager.credentials.inspect
+
+
+
     metadata  = {
         snippet: {
             # title: video.youtube_id + ' [REVERSE]'
             title: video.title,
             description: video.description,
-            keywords: video.keywords
+            # tags: video.tags,
+            # keywords: video.keywords
         },
         status: {
             privacy_status: 'unlisted'
         }
     }
 
-    Logger::debug 'Uploading video: ' + file_path
+    # Logger::debug ''
+    # Logger::debug 'Title: ' + video.title
+    # Logger::debug 'Uploading video: ' + file_path
     result = youtube.insert_video('snippet,status', metadata, upload_source: file_path, content_type: "video/mp4")
     puts result.inspect
     puts "Upload complete"
+
   end
 
   def getTrends

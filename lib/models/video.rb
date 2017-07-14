@@ -5,6 +5,7 @@ class Video
                 :description,
                 :category_id,   # https://developers.google.com/youtube/v3/docs/videoCategories/list
                 :keywords,      # 'Video keywords, comma-separated',
+                :tags,      # 'Video keywords, comma-separated',
                 :privacy_status # public | private | unlisted
 
   #https://developers.google.com/youtube/v3/docs/videos/list
@@ -14,10 +15,23 @@ class Video
   YOUTUBE_API_VERSION = 'v3'
   DEFAULT_PRIVACY_STATUS = 'private'
 
+  def initialize(youtube_trend = nil)
+    if youtube_trend.nil?
 
+      return nil
+    end
 
-  def initialize(youtube_id = nil)
-    @youtube_id = youtube_id
+    @youtube_id = youtube_trend.youtube_id
+    @title = youtube_trend.title.nil? ? youtube_trend.youtube_id + '[REVERSE]' : youtube_trend.title + ' | [REVERSE]'
+    @description = youtube_trend.description.nil? ? youtube_trend.youtube_id + '[REVERSE]' : '[REVERSE]' + youtube_trend.description
+    @tags = youtube_trend.tags.nil? ? '[REVERSE]' : youtube_trend.tags + ', [REVERSE]'
+    @category_id = youtube_trend.category_id
+
+    # Logger::debug youtube_trend.inspect
+    # Logger::debug self.inspect
+    #
+    # abort('yeah')
+
   end
 
   def get_video_data_for_download
@@ -27,7 +41,7 @@ class Video
       raise VideoDataForDownloadFailException.new('Status: ' + video_data['reason'].to_s + '. Errorcode: ' + video_data['reason'].to_s + '. Reason: ' + video_data['reason'].to_s)
     end
 
-    setVideoAttributes(video_data)
+    # setVideoAttributes(video_data)
 
     privacy_status = Video::DEFAULT_PRIVACY_STATUS
     streams = get_video_streams video_data
@@ -35,12 +49,14 @@ class Video
   end
 
   def setVideoAttributes(video_data)
+    Logger::debug "Video DATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    Logger::debug video_data.inspect
+
     @title = video_data['title'][0] + ' [REVERSE]'
     description = video_data.key?('description') ? video_data['description'][0] : ''
     @description = "Original: https://www.youtube.com/watch?v=" + @youtube_id + "\n\n" + description
     @keywords = video_data['keywords'][0] + ', reverse'
     @category_id = ''
-
 
     Logger::debug ""
     Logger::debug "Fill the video attributes:"
@@ -48,7 +64,6 @@ class Video
     Logger::debug "description: " + @description
     Logger::debug "keywords: " + @keywords
     Logger::debug "category_id: " + @category_id
-
 
   end
 
