@@ -19,20 +19,20 @@ class YoutubeManager
     youtube.authorization = @google_authorization_manager.credentials
     Logger::debug @google_authorization_manager.credentials.inspect
 
-
-
     metadata  = {
         snippet: {
-            # title: video.youtube_id + ' [REVERSE]'
             title: video.title,
             description: video.description,
-            # tags: video.tags,
+            tags: ((video.tags.nil?) ? video.tags: video.tags.split(',')),
             # keywords: video.keywords
         },
         status: {
             privacy_status: 'unlisted'
         }
     }
+
+    Logger::debug "METADATA"
+    Logger::debug metadata.inspect
 
     # Logger::debug ''
     # Logger::debug 'Title: ' + video.title

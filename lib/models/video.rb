@@ -28,7 +28,7 @@ class Video
     @youtube_id = youtube_trend.youtube_id
     @title = youtube_trend.title.nil? ? youtube_trend.youtube_id + ' [REVERSE]' : youtube_trend.title + ' | [REVERSE]'
     @description = youtube_trend.description.nil? ? youtube_trend.youtube_id + ' [REVERSE]' : getBeginDefaultDescription + youtube_trend.description
-    @tags = youtube_trend.tags.nil? ? '[REVERSE]' : youtube_trend.tags + ', [REVERSE]'
+    @tags = youtube_trend.tags.nil? ? 'REVERSE' : youtube_trend.tags + ', [REVERSE]'
     @category_id = youtube_trend.category_id
   end
 
