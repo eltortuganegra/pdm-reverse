@@ -24,7 +24,8 @@ class YoutubeManager
             title: video.title,
             description: video.description,
             tags: ((video.tags.nil?) ? video.tags: video.tags.split(',')),
-            # keywords: video.keywords
+            categoryId: video.category_id,
+            license: "creativeCommon"
         },
         status: {
             privacy_status: 'unlisted'
