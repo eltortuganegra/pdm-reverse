@@ -97,9 +97,9 @@ class Application
       video = createNewVideo(youtube_trend)
       downloadVideo(video)
       processTheDownloadedVideo(video)
-      file_path = uploadProcessedVideoToYoutube(video)
+      uploadProcessedVideoToYoutube(video)
       updateStatusToUploadedToYoutube(youtube_trend)
-      deleteTemporalVideos(file_path, video)
+
 
     rescue VideoDataForDownloadFailException => e
       Logger::debug 'Video has not been downloaded'
@@ -148,7 +148,7 @@ class Application
       end
     ensure
       Logger::debug 'ENSURE'
-
+      deleteTemporalVideos(video)
     end
   end
 
@@ -183,7 +183,8 @@ class Application
     video = Video.new youtube_trend
   end
 
-  def deleteTemporalVideos(file_path, video)
+  def deleteTemporalVideos(video)
+    file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
     Logger::debug 'Deleting original video: ' + file_path
     File.delete(file_path) if File.exists?(file_path)
     downloaded_video_path = @downloads_manager.get_downloaded_video_path(video.youtube_id)
