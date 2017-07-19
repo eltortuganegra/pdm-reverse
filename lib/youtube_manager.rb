@@ -24,11 +24,12 @@ class YoutubeManager
             title: video.title,
             description: video.description,
             tags: ((video.tags.nil?) ? video.tags: video.tags.split(',')),
-            categoryId: video.category_id,
-            license: "creativeCommon"
+            category_id: video.category_id,
         },
         status: {
-            privacy_status: 'unlisted'
+            embeddable: nil,
+            privacy_status: 'unlisted', # 'Video privacy status: public, private, or unlisted',
+            license: "creativeCommon"
         }
     }
 
