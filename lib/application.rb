@@ -41,6 +41,8 @@ class Application
                 :downloads_manager,
                 :converter_manager
 
+  DELAY_FOR_UPLOAD_LIMIT_EXCEEDED_EXCEPTION = 300
+
   def initialize
     begin
       @config = Config.new
@@ -69,6 +71,8 @@ class Application
         Logger::debug 'Exception:'
         Logger::debug e.message
         break;
+      rescue YoutubeUploadLimitExceededException
+        sleep Application::DELAY_FOR_UPLOAD_LIMIT_EXCEEDED_EXCEPTION
       end
     end
   end
@@ -146,6 +150,14 @@ class Application
       else
         raise YoutubeUploadLimitExceededException.new
       end
+    rescue Google::Apis::ServerError => e
+        Logger::debug '[Exception] ' + e.message
+        youtube_trend.youtube_trends_status_id = YoutubeTrendStatus::PENDING_OF_PROCESS
+        if ! youtube_trend.save
+          Logger.debug 'Youtube trend has not been saved!'
+        else
+          Logger.debug 'Youtube trend is pending of process again'
+        end
     ensure
       Logger::debug 'ENSURE'
       deleteTemporalVideos(video)
