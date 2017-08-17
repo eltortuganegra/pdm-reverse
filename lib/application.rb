@@ -72,6 +72,7 @@ class Application
         Logger::debug e.message
         break;
       rescue YoutubeUploadLimitExceededException
+        Logger::debug 'Youtube upload limit. Waiting for ' + Application::DELAY_FOR_UPLOAD_LIMIT_EXCEEDED_EXCEPTION.to_s
         sleep Application::DELAY_FOR_UPLOAD_LIMIT_EXCEEDED_EXCEPTION
       end
     end
@@ -103,7 +104,6 @@ class Application
       processTheDownloadedVideo(video)
       uploadProcessedVideoToYoutube(video)
       updateStatusToUploadedToYoutube(youtube_trend)
-
 
     rescue VideoDataForDownloadFailException => e
       Logger::debug 'Video has not been downloaded'
