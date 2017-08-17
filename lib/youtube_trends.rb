@@ -2,6 +2,7 @@ class YoutubeTrends
   GOOGLE_API_YOUTUBE_TRENDS_URL = 'https://www.googleapis.com/youtube/v3/videos'
   MAX_RESULTS_PER_REQUEST = 50
 
+
   def initialize
   end
 
@@ -9,9 +10,28 @@ class YoutubeTrends
     item_list = []
     next_page_token = nil;
     counter = 6
+    params = {}
+    params['region_code'] = 'ES'
+    params['region_code'] = 'IN'
+    params['region_code'] = 'JP'
+    params['region_code'] = 'CH'
+    params['region_code'] = 'RU'
+    params['region_code'] = 'GB'
+    params['region_code'] = 'FR'
+    params['region_code'] = 'IT'
+    params['region_code'] = 'PT'
+    params['region_code'] = 'BR'
+    params['region_code'] = 'AR'
+    params['region_code'] = 'CO'
+    params['region_code'] = 'VE'
+    params['region_code'] = 'MX'
+    params['region_code'] = 'CA'
 
     while counter > 0 do
-      uri = getUriTrendsVideo({:pageToken => next_page_token})
+      uri = getUriTrendsVideo({
+          :pageToken => next_page_token,
+          :regionCode => params['region_code']
+      })
       puts 'URI: ' + uri.to_s
       response = Net::HTTP.get(uri)
       parsed_response = JSON.parse(response)
@@ -35,6 +55,7 @@ class YoutubeTrends
 
   def getUriTrendsVideo params = nil
     queryString = buildQueryString params
+
     uri = URI(GOOGLE_API_YOUTUBE_TRENDS_URL + queryString)
   end
 
@@ -42,7 +63,7 @@ class YoutubeTrends
     {
         :part => 'contentDetails, snippet',
         :chart => 'mostPopular',
-        :regionCode => 'IN',
+        # :regionCode => 'ES',
         :maxResults => MAX_RESULTS_PER_REQUEST,
         :key => 'AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E'
     }
