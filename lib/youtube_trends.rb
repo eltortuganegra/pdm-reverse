@@ -12,20 +12,20 @@ class YoutubeTrends
     counter = 6
     params = {}
     params['region_code'] = 'ES'
-    params['region_code'] = 'IN'
-    params['region_code'] = 'JP'
-    params['region_code'] = 'CH'
-    params['region_code'] = 'RU'
-    params['region_code'] = 'GB'
-    params['region_code'] = 'FR'
-    params['region_code'] = 'IT'
-    params['region_code'] = 'PT'
-    params['region_code'] = 'BR'
-    params['region_code'] = 'AR'
-    params['region_code'] = 'CO'
-    params['region_code'] = 'VE'
-    params['region_code'] = 'MX'
-    params['region_code'] = 'CA'
+    # params['region_code'] = 'IN'
+    # params['region_code'] = 'JP'
+    # params['region_code'] = 'CH'
+    # params['region_code'] = 'RU'
+    # params['region_code'] = 'GB'
+    # params['region_code'] = 'FR'
+    # params['region_code'] = 'IT'
+    # params['region_code'] = 'PT'
+    # params['region_code'] = 'BR'
+    # params['region_code'] = 'AR'
+    # params['region_code'] = 'CO'
+    # params['region_code'] = 'VE'
+    # params['region_code'] = 'MX'
+    # params['region_code'] = 'CA'
 
     while counter > 0 do
       uri = getUriTrendsVideo({
@@ -65,7 +65,7 @@ class YoutubeTrends
         :chart => 'mostPopular',
         # :regionCode => 'ES',
         :maxResults => MAX_RESULTS_PER_REQUEST,
-        :key => 'AIzaSyDu_K050qbIQQnw3ZJ2MTLS1lYssdh_B6E'
+        :key => 'AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es'
     }
   end
 

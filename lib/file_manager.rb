@@ -8,6 +8,7 @@ class FileManager
       url_video = video.get_url_higher_resolution_video
       Logger::debug 'Url video: ' + url_video
       open(url_video, "rb") do |read_file|
+      # open(url_video,  :allow_redirections => :all) do |read_file|
         Logger::debug 'Saved file!'
         saved_file.write(read_file.read)
       end

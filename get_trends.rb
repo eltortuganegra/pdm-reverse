@@ -35,6 +35,7 @@ puts "Total " + video_list.length.to_s
 
 def convertToSeconds(duration)
   pattern = "PT"
+  pattern += "%DD" if duration.include? "D"
   pattern += "%HH" if duration.include? "H"
   pattern += "%MM" if duration.include? "M"
   pattern += "%SS" if duration.include? "S"

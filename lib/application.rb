@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'open-uri'
+require 'open_uri_redirections'
 require 'cgi'
 require 'net/http'
 require 'json'
@@ -14,6 +15,7 @@ require 'google/apis/youtube_v3'
 require 'googleauth'
 require 'googleauth/stores/file_token_store'
 require 'active_record'
+
 
 require_relative 'logger'
 require_relative '../config/config'

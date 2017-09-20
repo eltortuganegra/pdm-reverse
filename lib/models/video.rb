@@ -26,14 +26,27 @@ class Video
 
   def loadAttributes(youtube_trend)
     @youtube_id = youtube_trend.youtube_id
-    @title = youtube_trend.title.nil? ? youtube_trend.youtube_id + ' [REVERSE]' : youtube_trend.title + ' | [REVERSE]'
-    @description = youtube_trend.description.nil? ? youtube_trend.youtube_id + ' [REVERSE]' : getBeginDefaultDescription + youtube_trend.description
-    @tags = youtube_trend.tags.nil? ? 'REVERSE' : youtube_trend.tags + ', [REVERSE]'
+    loadTitle(youtube_trend)
+    loadDescription(youtube_trend)
+    @tags = youtube_trend.tags.nil? ? 'Funny Reverse' : youtube_trend.tags + ', [Funny Reverse]'
     @category_id = youtube_trend.category_id
   end
 
+  def loadTitle(youtube_trend)
+    @title = youtube_trend.title.nil? ? youtube_trend.youtube_id + ' [Funny Reverse]' : youtube_trend.title + ' | [Funny Reverse]'
+  end
+
+  def loadDescription(youtube_trend)
+    # @description = youtube_trend.description.nil? ? youtube_trend.youtube_id + ' [REVERSE]' : getBeginDefaultDescription + youtube_trend.description
+    @description = getDefaultDescription(youtube_trend)
+  end
+
+  def getDefaultDescription(youtube_trend)
+    "[Funny Reverse]\n" + @title + "\nFunny reverse video\nYou can see the original video: https://youtube.com/watch?v=" + @youtube_id
+  end
+
   def getBeginDefaultDescription
-    "[REVERSE]\nOriginal video: https://youtube.com/watch?v=" + @youtube_id + "\n---------\nOriginal description:\n"
+    "[Funny reverse]\nOriginal video: https://youtube.com/watch?v=" + @youtube_id + "\n---------\nOriginal description:\n"
   end
 
   def get_video_data_for_download
@@ -54,7 +67,7 @@ class Video
     Logger::debug "Video DATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     Logger::debug video_data.inspect
 
-    @title = video_data['title'][0] + ' [REVERSE]'
+    @title = video_data['title'][0] + ' [Funny Reverse]'
     description = video_data.key?('description') ? video_data['description'][0] : ''
     @description = "Original: https://www.youtube.com/watch?v=" + @youtube_id + "\n\n" + description
     @keywords = video_data['keywords'][0] + ', reverse'
@@ -70,7 +83,8 @@ class Video
   end
 
   def get_video_data(youtube_id)
-    video_data = CGI.parse open(get_info_video_uri(youtube_id)).read
+    # video_data = CGI.parse open(get_info_video_uri(youtube_id)).read
+    video_data = CGI.parse open(get_info_video_uri(youtube_id),  :allow_redirections => :safe).read
     Logger::debug 'Video data:'
     Logger::debug video_data.inspect
 
@@ -193,6 +207,8 @@ class Video
     return client, youtube
   end
 
+  def load_from_search_result(youtube_search_result)
 
+  end
 
 end
