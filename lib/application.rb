@@ -70,13 +70,12 @@ class Application
   def run
     while true
       begin
-        youtube_video = YoutubeVideo::get_youtube_video_with_newest_publication_date
-        youtube_video.youtube_video_status_id = YoutubeVideoStatus::IN_PROCESS
-        youtube_video.save!
+        youtube_video = get_youtube_video_for_upload
         @downloads_manager.download(youtube_video)
         processTheDownloadedVideo(youtube_video)
         uploadProcessedVideoToYoutube(youtube_video)
         updateStatusToUploadedToYoutube(youtube_video)
+        setUploadedDateToYoutubeVideo(youtube_video)
         deleteTemporalVideos(youtube_video)
       rescue YoutubeTrendWithPendingOfProcessStatusNotFoundException => e
         Logger::debug 'Exception:'
@@ -87,6 +86,19 @@ class Application
         sleep Application::DELAY_FOR_UPLOAD_LIMIT_EXCEEDED_EXCEPTION
       end
     end
+  end
+
+  def setUploadedDateToYoutubeVideo(youtube_video)
+    youtube_video.uploaded_at = Time.now.strftime("%Y-%d-%m %H:%M:%S")
+    youtube_video.save!
+  end
+
+  def get_youtube_video_for_upload
+    youtube_video = YoutubeVideo::get_youtube_video_with_newest_publication_date
+    youtube_video.youtube_video_status_id = YoutubeVideoStatus::IN_PROCESS
+    youtube_video.save!
+
+    youtube_video
   end
 
   def select_youtube_trend_video_for_process
