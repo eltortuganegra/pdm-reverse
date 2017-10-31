@@ -35,7 +35,7 @@ class YoutubeSearch
   end
 
   def build_query_string
-    queryString = '?key=AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es&part=id,snippet&maxResults=50&type=video&videoLicense=creativeCommon&q=fail'
+    queryString = '?key=AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es&part=id,snippet&maxResults=50&type=video&type=video&videoDuration=short&videoEmbeddable=true&videoSyndicated=true&videoLicense=creativeCommon&videoDefinition=high&q=football fails'
   end
 
 end

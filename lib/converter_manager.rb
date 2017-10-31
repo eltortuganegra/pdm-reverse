@@ -4,8 +4,8 @@ class ConverterManager
     @config = config
   end
 
-  def convert video
-    if ! system(get_reverse_video_command video.youtube_id)
+  def convert youtube_video
+    if ! system(get_reverse_video_command youtube_video.youtube_video_id)
       raise VideoHasNotBeenReversed.new
     end
 
@@ -14,9 +14,9 @@ class ConverterManager
     return true
   end
 
-  def get_reverse_video_command youtube_id
-    input_file = getInputFilePath youtube_id
-    output_file = getOutputFilePath youtube_id
+  def get_reverse_video_command youtube_video_id
+    input_file = getInputFilePath youtube_video_id
+    output_file = getOutputFilePath youtube_video_id
     command = "ffmpeg -i " + input_file + " -vf \"reverse,hflip\" -af areverse " + output_file
     Logger::debug 'get_reverse_video_command:'
     Logger::debug command
@@ -24,12 +24,12 @@ class ConverterManager
     command
   end
 
-  def getInputFilePath youtube_id
-    @config.downloads_path + '/' + youtube_id
+  def getInputFilePath youtube_video_id
+    @config.downloads_path + '/' + youtube_video_id
   end
 
-  def getOutputFilePath youtube_id
-    @config.downloads_path + '/' + youtube_id + '.mp4'
+  def getOutputFilePath youtube_video_id
+    @config.downloads_path + '/' + youtube_video_id + '.mp4'
   end
 
 

@@ -23,12 +23,15 @@ require_relative './models/model'
 require_relative './models/video'
 require_relative './models/youtube_trend'
 require_relative './models/youtube_trend_status'
+require_relative './models/youtube_video'
+require_relative '../lib/models/youtube_video_status'
 require_relative '../lib/exceptions/credentials_code_not_found_exception'
 require_relative '../lib/exceptions/video_has_not_been_reversed_exception'
 require_relative '../lib/exceptions/youtube_trend_with_pending_of_process_status_not_found_exception'
 require_relative '../lib/exceptions/video_data_for_download_fail_exception'
 require_relative '../lib/exceptions/youtube_upload_limit_exceeded_exception'
 require_relative '../lib/exceptions/youtube_upload_invalid_or_empty_video_title_exception'
+require_relative '../lib/youtube_api/youtube_api_get_video_info'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative 'converter_manager'
@@ -67,8 +70,14 @@ class Application
   def run
     while true
       begin
-        youtube_trend = select_youtube_trend_video_for_process        
-        process_youtube_trend youtube_trend
+        youtube_video = YoutubeVideo::get_youtube_video_with_newest_publication_date
+        youtube_video.youtube_video_status_id = YoutubeVideoStatus::IN_PROCESS
+        youtube_video.save!
+        @downloads_manager.download(youtube_video)
+        processTheDownloadedVideo(youtube_video)
+        uploadProcessedVideoToYoutube(youtube_video)
+        updateStatusToUploadedToYoutube(youtube_video)
+        deleteTemporalVideos(youtube_video)
       rescue YoutubeTrendWithPendingOfProcessStatusNotFoundException => e
         Logger::debug 'Exception:'
         Logger::debug e.message
@@ -166,27 +175,27 @@ class Application
     end
   end
 
-  def updateStatusToUploadedToYoutube(youtube_trend)
-    youtube_trend.youtube_trends_status_id= YoutubeTrendStatus::UPLOADED_TO_YOUTUBE
-    if youtube_trend.save
+  def updateStatusToUploadedToYoutube(youtube_video)
+    youtube_video.youtube_video_status_id= YoutubeVideoStatus::UPLOADED_TO_YOUTUBE
+    if youtube_video.save
       puts 'Youtube trend status updated to: UPLOADED_TO_YOUTUBE'
     else
       puts 'Youtube trend status updated can not update to: UPLOADED_TO_YOUTUBE'
     end
   end
 
-  def uploadProcessedVideoToYoutube(video)
+  def uploadProcessedVideoToYoutube(youtube_video)
     Logger::debug 'Uploading video'
-    file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
+    file_path = FileManager::get_downloaded_video_path_reversed(youtube_video.youtube_video_id)
     Logger::debug 'Path: ' + file_path.inspect
-    youtube = YoutubeManager.new @google_authorization_manager
-    youtube.upload_video video, file_path
+    youtubeManager = YoutubeManager.new @google_authorization_manager
+    youtubeManager.upload_video youtube_video, file_path
 
     file_path
   end
 
-  def processTheDownloadedVideo(video)
-    @converter_manager.convert video
+  def processTheDownloadedVideo(youtube_video)
+    @converter_manager.convert youtube_video
   end
 
   def downloadVideo(video)
@@ -197,11 +206,12 @@ class Application
     video = Video.new youtube_trend
   end
 
-  def deleteTemporalVideos(video)
-    file_path = FileManager::get_downloaded_video_path_reversed(video.youtube_id)
-    Logger::debug 'Deleting original video: ' + file_path
-    File.delete(file_path) if File.exists?(file_path)
-    downloaded_video_path = @downloads_manager.get_downloaded_video_path(video.youtube_id)
+  def deleteTemporalVideos(youtube_video)
+    reversed_video_file_path = FileManager::get_downloaded_video_path_reversed(youtube_video.youtube_video_id)
+    Logger::debug 'Deleting reversed video: ' + reversed_video_file_path
+    File.delete(reversed_video_file_path) if File.exists?(reversed_video_file_path)
+
+    downloaded_video_path = @downloads_manager.get_downloaded_video_path(youtube_video.youtube_video_id)
     Logger::debug 'Deleting processed video: ' + downloaded_video_path
     File.delete(downloaded_video_path) if File.exists?(downloaded_video_path)
   end

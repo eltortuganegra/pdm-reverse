@@ -22,16 +22,18 @@ puts 'Total videos: ' + youtube_search_results.length.to_s
 puts youtube_search_results.inspect
 
 youtube_search_results.each { |youtube_search_result|
+  puts ''
   puts 'youtube_search_result:'
   puts youtube_search_result.inspect
   youtube_video = YoutubeVideo.new(youtube_search_result.to_hash)
-
+  youtube_video.tags = 'reverse,funny'
   begin
     youtube_video.save!
+    puts 'This youtube_video has been saved successfully.'
   rescue ActiveRecord::RecordNotUnique
-    puts 'This youtube_video has been saved before'
+    puts 'Warning: This youtube_video has been saved before'
   rescue Exception => e
-    puts 'Video not saved!'
+    puts 'Error: Video not saved!'
     puts "An error of type #{e.class} happened, message is #{e.message}"
     puts e.message
     puts e.backtrace.inspect
