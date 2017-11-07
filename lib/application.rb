@@ -89,8 +89,10 @@ class Application
   end
 
   def setUploadedDateToYoutubeVideo(youtube_video)
+    Logger::debug 'Uploaded at: ' + Time.now.strftime("%Y-%d-%m %H:%M:%S")
     youtube_video.uploaded_at = Time.now.strftime("%Y-%d-%m %H:%M:%S")
     youtube_video.save!
+    Logger::debug youtube_video.inspect
   end
 
   def get_youtube_video_for_upload
@@ -201,9 +203,13 @@ class Application
     file_path = FileManager::get_downloaded_video_path_reversed(youtube_video.youtube_video_id)
     Logger::debug 'Path: ' + file_path.inspect
     youtubeManager = YoutubeManager.new @google_authorization_manager
-    youtubeManager.upload_video youtube_video, file_path
+    insert_video_response = youtubeManager.upload_video youtube_video, file_path
+    Logger::debug 'youtube_video'
+    Logger::debug youtube_video.inspect
+    youtube_video.processed_youtube_video_id = insert_video_response.id
+    youtube_video.uploaded_at = DateTime.now.strftime('%s')
 
-    file_path
+    insert_video_response
   end
 
   def processTheDownloadedVideo(youtube_video)

@@ -37,12 +37,13 @@ class YoutubeManager
     Logger::debug ''
     Logger::debug 'Title: ' + youtube_video.title
     Logger::debug 'Uploading video: ' + file_path
-    result = youtube.insert_video('snippet,status', metadata, upload_source: file_path, content_type: "video/mp4")
+    insert_video_response = youtube.insert_video('snippet,status', metadata, upload_source: file_path, content_type: "video/mp4")
     # result = youtube.insert_video('snippet,status', metadata, upload_source: file_path, content_type: "video/mp4")
-
-    puts result.inspect
+    Logger::debug 'Result of insert video:'
+    puts insert_video_response.inspect
     puts "Upload completed"
 
+    insert_video_response
   end
 
   def buildDescription(youtube_video)
