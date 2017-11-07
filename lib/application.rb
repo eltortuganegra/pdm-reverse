@@ -77,6 +77,11 @@ class Application
         updateStatusToUploadedToYoutube(youtube_video)
         setUploadedDateToYoutubeVideo(youtube_video)
         deleteTemporalVideos(youtube_video)
+      rescue VideoHasNotBeenReversed => e
+        youtube_video.youtube_video_status_id = YoutubeVideoStatus::ERROR_VIDEO_HAS_NOT_PROCESS
+        if ! youtube_video.save
+          Logger::debug 'youtube_video is not save'
+        end
       rescue YoutubeTrendWithPendingOfProcessStatusNotFoundException => e
         Logger::debug 'Exception:'
         Logger::debug e.message
