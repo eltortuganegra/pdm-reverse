@@ -76,7 +76,6 @@ class Application
         uploadProcessedVideoToYoutube(youtube_video)
         updateStatusToUploadedToYoutube(youtube_video)
         setUploadedDateToYoutubeVideo(youtube_video)
-        deleteTemporalVideos(youtube_video)
       rescue VideoHasNotBeenReversed => e
         youtube_video.youtube_video_status_id = YoutubeVideoStatus::ERROR_VIDEO_HAS_NOT_PROCESS
         if ! youtube_video.save
@@ -89,6 +88,9 @@ class Application
       rescue YoutubeUploadLimitExceededException
         Logger::debug 'Youtube upload limit. Waiting for ' + Application::DELAY_FOR_UPLOAD_LIMIT_EXCEEDED_EXCEPTION.to_s
         sleep Application::DELAY_FOR_UPLOAD_LIMIT_EXCEEDED_EXCEPTION
+      ensure
+        Logger::debug 'ENSURE'
+        deleteTemporalVideos(youtube_video)
       end
     end
   end
@@ -234,9 +236,9 @@ class Application
     Logger::debug 'Deleting reversed video: ' + reversed_video_file_path
     File.delete(reversed_video_file_path) if File.exists?(reversed_video_file_path)
 
-    downloaded_video_path = @downloads_manager.get_downloaded_video_path(youtube_video.youtube_video_id)
-    Logger::debug 'Deleting processed video: ' + downloaded_video_path
-    File.delete(downloaded_video_path) if File.exists?(downloaded_video_path)
+    downloaded_video_file_path = @downloads_manager.get_downloaded_video_path(youtube_video.youtube_video_id)
+    Logger::debug 'Deleting processed video: ' + downloaded_video_file_path
+    File.delete(downloaded_video_file_path) if File.exists?(downloaded_video_file_path)
   end
 
 end
