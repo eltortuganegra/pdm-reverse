@@ -5,14 +5,18 @@ class YoutubeSearch
 
   end
 
-  def search
-    queryString = build_query_string
+  def search search
+
+    queryString = build_query_string search
     uri = build_uri(queryString)
     puts 'Uri: ' + uri.inspect
 
     response = request_to_youtube_api(uri)
     parsed_response = JSON.parse(response)
     youtube_search_results = create_youtube_search_results_from_parsed_json(parsed_response)
+
+    search.last_search_at = Time.now
+    search.save
 
     youtube_search_results
   end
@@ -34,8 +38,8 @@ class YoutubeSearch
     uri = URI(YOUTUBE_SEARCH_LIST_ENDPOINT + queryString)
   end
 
-  def build_query_string
-    queryString = '?key=AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es&part=id,snippet&maxResults=50&type=video&type=video&videoDuration=short&videoEmbeddable=true&videoSyndicated=true&videoLicense=creativeCommon&videoDefinition=high&q=yoga fails 2017'
+  def build_query_string(search)
+    query_string = '?key=AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es&part=id,snippet&maxResults=50&type=video&type=video&videoDuration=short&videoEmbeddable=true&videoSyndicated=true&videoLicense=creativeCommon&videoDefinition=high&q=' + search.text
   end
 
 end
