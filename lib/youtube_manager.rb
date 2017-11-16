@@ -47,7 +47,11 @@ class YoutubeManager
   end
 
   def buildDescription(youtube_video)
-    youtube_video.description
+    footer_description = "\n\n"\
+      "----------" + "\n"\
+      "This video is a derivated work from a video with a Creative Commons license." + "\n"\
+      "You can see the original video: https://www.youtube.com/watch?v=" + youtube_video.youtube_video_id
+    description = youtube_video.description + footer_description
   end
 
   def getTrends
