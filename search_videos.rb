@@ -32,7 +32,7 @@ while (search = Search::get_query_with_older_last_search)
     break;
   end
 
-  youtube_search_results = youtube_search.search search
+  youtube_search_results = youtube_search.request search
   puts 'Total videos: ' + youtube_search_results.length.to_s
   puts youtube_search_results.inspect
 

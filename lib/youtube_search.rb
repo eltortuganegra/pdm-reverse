@@ -5,7 +5,7 @@ class YoutubeSearch
 
   end
 
-  def search search
+  def request search
 
     queryString = build_query_string search
     uri = build_uri(queryString)
