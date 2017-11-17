@@ -4,12 +4,22 @@ require 'googleauth'
 require 'googleauth/stores/file_token_store'
 require 'net/http'
 require 'active_record'
+require 'cgi'
+require 'open-uri'
+require 'open_uri_redirections'
+require 'cgi'
+require 'net/http'
+require 'json'
+
+
 
 require_relative './lib/logger'
 require_relative './lib/models/model'
 require_relative './lib/models/youtube_video'
 require_relative './lib/models/search'
+require_relative './lib/youtube_api/youtube_api_get_video_info'
 require_relative './lib/youtube_search'
+require_relative './lib/youtube_search_result'
 require_relative './lib/youtube_search_result'
 
 
@@ -19,6 +29,14 @@ puts '***************************'
 
 youtube_search = YoutubeSearch.new
 
+
+def addTags(youtube_video, youtube_video_info)
+  if youtube_video_info.key?('keywords') && !youtube_video_info['keywords'].nil? && youtube_video_info['keywords'][0] != ""
+    youtube_video.tags = youtube_video_info['keywords'].join(", ") + ', reverse,funny'
+  else
+    youtube_video.tags = 'reverse,funny'
+  end
+end
 
 while (search = Search::get_query_with_older_last_search)
   Logger::debug 'Query string: ' + search.text
@@ -41,7 +59,9 @@ while (search = Search::get_query_with_older_last_search)
     puts 'youtube_search_result:'
     puts youtube_search_result.inspect
     youtube_video = YoutubeVideo.new(youtube_search_result.to_hash)
-    youtube_video.tags = 'reverse,funny'
+    youtube_video_info = YoutubeApiGetVideoInfo::submit youtube_search_result.youtube_video_id
+    addTags(youtube_video, youtube_video_info)
+
     begin
       youtube_video.save!
       puts 'This youtube_video has been saved successfully.'

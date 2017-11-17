@@ -84,7 +84,7 @@ class Video
 
   def get_video_data(youtube_id)
     # video_data = CGI.parse open(get_info_video_uri(youtube_id)).read
-    video_data = CGI.parse open(get_info_video_uri(youtube_id),  :allow_redirections => :safe).read
+    video_data = CGI.parse(open(get_info_video_uri(youtube_id),  :allow_redirections => :safe).read)
     Logger::debug 'Video data:'
     Logger::debug video_data.inspect
 

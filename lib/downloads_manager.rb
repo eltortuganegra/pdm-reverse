@@ -34,7 +34,7 @@ class DownloadsManager
   end
 
   def get_url_higher_resolution_video(youtube_video)
-    video_data_response = YoutubeApiGetVideoInfo::submit youtube_video
+    video_data_response = YoutubeApiGetVideoInfo::submit youtube_video.youtube_video_id
     if (video_data_response.key?('status') && video_data_response['status'] == ['fail'])
       Logger::debug 'Status: fail. Reason: ' + video_data_response['reason'].to_s
       raise VideoDataForDownloadFailException.new('Status: ' + video_data_response['reason'].to_s + '. Errorcode: ' + video_data_response['reason'].to_s + '. Reason: ' + video_data_response['reason'].to_s)
