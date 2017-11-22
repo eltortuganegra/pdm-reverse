@@ -4,6 +4,8 @@ class YoutubeManager
   YT = Google::Apis::YoutubeV3
   OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
   GOOGLE_API_YOUTUBE_TRENDS_URL = 'https://www.googleapis.com/youtube/v3/videos'
+  YOUTUBE_VIDEO_TITLE_MAXIMUM_SIZE = 100;
+  DEFAULT_SUFFIX_FOR_TITLE = ' | FUNNY REVERSE'
 
   attr_accessor :google_authorization_manager
 
@@ -21,7 +23,7 @@ class YoutubeManager
 
     metadata  = {
         snippet: {
-            title: youtube_video.title + ' | FUNNY REVERSE',
+            title: buildTitle(youtube_video),
             description: buildDescription(youtube_video),
             tags: ((youtube_video.tags.nil?) ? youtube_video.tags: youtube_video.tags.split(',')),
         },
@@ -44,6 +46,19 @@ class YoutubeManager
     puts "Upload completed"
 
     insert_video_response
+  end
+
+  def buildTitle(youtube_video)
+    if (youtube_video.title.length > getMaximumSizeWithoutPrefix)
+      title = youtube_video.title.encode('utf-8', :invalid => :replace, :undef => :replace)
+      title[0, getMaximumSizeWithoutPrefix] + self::DEFAULT_SUFFIX_FOR_TITLE
+    else
+      youtube_video.title.encode('utf-8', :invalid => :replace, :undef => :replace) + self::DEFAULT_SUFFIX_FOR_TITLE
+    end
+  end
+
+  def getMaximumSizeWithoutPrefix
+    (self::YOUTUBE_VIDEO_TITLE_MAXIMUM_SIZE - self::DEFAULT_SUFFIX_FOR_TITLE.length)
   end
 
   def buildDescription(youtube_video)
