@@ -11,8 +11,6 @@ require 'cgi'
 require 'net/http'
 require 'json'
 
-
-
 require_relative './lib/logger'
 require_relative './lib/models/model'
 require_relative './lib/models/youtube_video'
@@ -32,7 +30,7 @@ youtube_search = YoutubeSearch.new
 
 def addTags(youtube_video, youtube_video_info)
   if youtube_video_info.key?('keywords') && !youtube_video_info['keywords'].nil? && youtube_video_info['keywords'][0] != ""
-    youtube_video.tags = youtube_video_info['keywords'].join(", ") + ', reverse,funny'
+    youtube_video.tags = youtube_video_info['keywords'].join(", ") + ',reverse,funny'
   else
     youtube_video.tags = 'reverse,funny'
   end

@@ -23,8 +23,8 @@ class YoutubeManager
 
     metadata  = {
         snippet: {
-            title: buildTitle(youtube_video),
-            description: buildDescription(youtube_video),
+            title: build_title(youtube_video),
+            description: build_description(youtube_video),
             tags: ((youtube_video.tags.nil?) ? youtube_video.tags: youtube_video.tags.split(',')),
         },
         status: {
@@ -48,20 +48,21 @@ class YoutubeManager
     insert_video_response
   end
 
-  def buildTitle(youtube_video)
-    if (youtube_video.title.length > getMaximumSizeWithoutPrefix)
+  def build_title(youtube_video)
+    if (youtube_video.title.length > get_maximum_size_without_prefix)
       title = youtube_video.title.encode('utf-8', :invalid => :replace, :undef => :replace)
-      title[0, getMaximumSizeWithoutPrefix] + self::DEFAULT_SUFFIX_FOR_TITLE
+      title[0, get_maximum_size_without_prefix] + YoutubeManager::DEFAULT_SUFFIX_FOR_TITLE
     else
-      youtube_video.title.encode('utf-8', :invalid => :replace, :undef => :replace) + self::DEFAULT_SUFFIX_FOR_TITLE
+      youtube_video.title.encode('utf-8', :invalid => :replace, :undef => :replace) + YoutubeManager::DEFAULT_SUFFIX_FOR_TITLE
     end
   end
 
-  def getMaximumSizeWithoutPrefix
-    (self::YOUTUBE_VIDEO_TITLE_MAXIMUM_SIZE - self::DEFAULT_SUFFIX_FOR_TITLE.length)
+  def get_maximum_size_without_prefix
+    Logger::debug 'get_maximum_size_without_prefix'
+    (YoutubeManager::YOUTUBE_VIDEO_TITLE_MAXIMUM_SIZE - YoutubeManager::DEFAULT_SUFFIX_FOR_TITLE.length)
   end
 
-  def buildDescription(youtube_video)
+  def build_description(youtube_video)
     footer_description = "\n\n"\
       "----------" + "\n"\
       "This video is a derivated work from a video with a Creative Commons license." + "\n"\
@@ -69,7 +70,7 @@ class YoutubeManager
     description = youtube_video.description + footer_description
   end
 
-  def getTrends
+  def get_trends
     youtubeTrends = YoutubeTrends.new
     youtubeTrends.apiRequestVideoList
   end
