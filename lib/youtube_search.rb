@@ -9,7 +9,7 @@ class YoutubeSearch
 
     queryString = build_query_string search
     uri = build_uri(queryString)
-    puts 'Uri: ' + uri.inspect
+    Logger::debug 'Uri: ' + uri.inspect
 
     response = request_to_youtube_api(uri)
     parsed_response = JSON.parse(response)
