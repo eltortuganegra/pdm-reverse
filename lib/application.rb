@@ -207,13 +207,15 @@ class Application
   end
 
   def uploadProcessedVideoToYoutube(youtube_video)
+    Logger::debug 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ'
     Logger::debug 'Uploading video'
+    Logger::debug 'youtube_video'
+    Logger::debug youtube_video.inspect
     file_path = FileManager::get_downloaded_video_path_reversed(youtube_video.youtube_video_id)
     Logger::debug 'Path: ' + file_path.inspect
     youtubeManager = YoutubeManager.new @google_authorization_manager
     insert_video_response = youtubeManager.upload_video youtube_video, file_path
-    Logger::debug 'youtube_video'
-    Logger::debug youtube_video.inspect
+
     youtube_video.processed_youtube_video_id = insert_video_response.id
     youtube_video.uploaded_at = DateTime.now.strftime('%s')
 

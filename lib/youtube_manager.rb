@@ -25,7 +25,7 @@ class YoutubeManager
         snippet: {
             title: build_title(youtube_video),
             description: build_description(youtube_video),
-            tags: ((youtube_video.tags.nil?) ? youtube_video.tags: youtube_video.tags.split(',')),
+            tags: ((youtube_video.tags.nil?) ? '' : youtube_video.tags.split(',')),
         },
         status: {
             embeddable: nil,
