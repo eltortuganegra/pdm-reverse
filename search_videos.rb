@@ -71,11 +71,7 @@ while (search = Search::get_query_with_older_last_search)
     Logger::debug youtube_search_result.inspect
     youtube_video = YoutubeVideo.new(youtube_search_result.to_hash)
 
-    # youtube_video_info = YoutubeApiGetVideoInfo::submit youtube_search_result.youtube_video_id
-
     parameters = {
-        :key => 'AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es',
-        :part => 'id,snippet',
         :id => youtube_video.youtube_video_id
     }
     youtube_api_video_response = YoutubeApiVideo::get parameters

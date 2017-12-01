@@ -4,6 +4,8 @@ class YoutubeApi
   def self.get parameters = nil
     if parameters.nil?
       parameters = get_default_parameters
+    else
+      parameters = get_default_parameters.merge(parameters)
     end
     query_string = build_query_string(parameters)
 
