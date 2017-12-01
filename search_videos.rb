@@ -31,21 +31,6 @@ Logger::debug '***************************'
 
 youtube_search = YoutubeSearch.new
 
-
-def addTags(youtube_video, youtube_api_video_response)
-  if (youtube_api_video_response.key('items') &&
-      youtube_api_video_response['items'].kind_of?(Array) &&
-      youtube_api_video_response['items'].count > 0 &&
-      youtube_api_video_response['items'][0].key('snippet') &&
-      youtube_api_video_response['items'][0]['snippet'].key('tags')
-      youtube_api_video_response['items'][0]['snippet']['tags'].kind_of?(Array) &&
-      youtube_api_video_response['items'][0]['snippet']['tags'].count > 0)
-    youtube_video.tags = youtube_api_video_response['items'][0]['snippet']['tags'].join(",") + ',reverse,funny'
-  else
-    youtube_video.tags = 'reverse,funny'
-  end
-end
-
 while (search = Search::get_query_with_older_last_search)
   Logger::debug 'Query string: ' + search.text
   Logger::debug 'Last search at: ' + search.last_search_at.inspect
