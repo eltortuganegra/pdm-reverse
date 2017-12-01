@@ -21,9 +21,11 @@ require_relative 'logger'
 require_relative '../config/config'
 require_relative './models/model'
 require_relative './models/video'
+require_relative './models/search'
 require_relative './models/youtube_trend'
 require_relative './models/youtube_trend_status'
 require_relative './models/youtube_video'
+require_relative '../lib/youtube_search'
 require_relative '../lib/models/youtube_video_status'
 require_relative '../lib/exceptions/credentials_code_not_found_exception'
 require_relative '../lib/exceptions/video_has_not_been_reversed_exception'
@@ -33,12 +35,17 @@ require_relative '../lib/exceptions/youtube_upload_limit_exceeded_exception'
 require_relative '../lib/exceptions/youtube_upload_invalid_or_empty_video_title_exception'
 require_relative '../lib/youtube_api/youtube_api'
 require_relative '../lib/youtube_api/youtube_api_get_video_info'
+require_relative '../lib/youtube_api/youtube_api_search'
+require_relative '../lib/youtube_api/youtube_api_video'
 require_relative 'file_manager'
 require_relative 'youtube_manager'
 require_relative 'converter_manager'
 require_relative 'downloads_manager'
 require_relative 'youtube_trends'
 require_relative 'google_authorization_manager'
+require_relative 'youtube_search'
+require_relative 'youtube_search_result'
+require_relative 'youtube_video_tools'
 
 
 class Application
@@ -242,6 +249,57 @@ class Application
     downloaded_video_file_path = @downloads_manager.get_downloaded_video_path(youtube_video.youtube_video_id)
     Logger::debug 'Deleting processed video: ' + downloaded_video_file_path
     File.delete(downloaded_video_file_path) if File.exists?(downloaded_video_file_path)
+  end
+
+  def search_videos
+    youtube_search = YoutubeSearch.new
+
+    while (search = Search::get_query_with_older_last_search)
+      Logger::debug 'Query string: ' + search.text
+      Logger::debug 'Last search at: ' + search.last_search_at.inspect
+      Logger::debug 'Time now: ' + Time.now.inspect
+      Logger::debug 'One day ago: ' + 1.day.ago.inspect
+      Logger::debug 'One day old?: ' + (( ! search.last_search_at.nil?) && (search.last_search_at > 1.day.ago)).inspect
+
+      if (( ! search.last_search_at.nil?) && (search.last_search_at > 1.day.ago))
+        Logger::debug 'All searchs have been searched in the 24 previous hours.'
+
+        break
+      end
+
+      search.last_search_at = Time.now
+      search.save
+
+      youtube_search_results = youtube_search.request search
+      Logger::debug 'Total videos: ' + youtube_search_results.length.to_s
+      Logger::debug youtube_search_results.inspect
+
+      youtube_search_results.each { |youtube_search_result|
+        Logger::debug ''
+        Logger::debug 'youtube_search_result:'
+        Logger::debug youtube_search_result.inspect
+        youtube_video = YoutubeVideo.new(youtube_search_result.to_hash)
+
+        parameters = {
+            :id => youtube_video.youtube_video_id
+        }
+        youtube_api_video_response = YoutubeApiVideo::get parameters
+        YoutubeVideoTools::add_tags_from_youtube_api_video_reponse(youtube_video, youtube_api_video_response)
+
+        begin
+          youtube_video.save!
+          Logger::debug 'This youtube_video has been saved successfully.'
+        rescue ActiveRecord::RecordNotUnique
+          Logger::debug 'Warning: This youtube_video has been saved before'
+        rescue Exception => e
+          Logger::debug 'Error: Video not saved!'
+          Logger::debug "An error of type #{e.class} happened, message is #{e.message}"
+          Logger::debug e.message
+          Logger::debug e.backtrace.inspect
+        end
+      }
+
+    end
   end
 
 end
