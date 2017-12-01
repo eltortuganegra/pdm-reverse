@@ -20,6 +20,7 @@ require_relative './lib/youtube_api/youtube_api_get_video_info'
 require_relative './lib/youtube_api/youtube_api_search'
 require_relative './lib/youtube_api/youtube_api_video'
 require_relative './lib/youtube_search'
+require_relative './lib/youtube_video_tools'
 require_relative './lib/youtube_search_result'
 require_relative './lib/youtube_search_result'
 
@@ -75,7 +76,7 @@ while (search = Search::get_query_with_older_last_search)
         :id => youtube_video.youtube_video_id
     }
     youtube_api_video_response = YoutubeApiVideo::get parameters
-    addTags(youtube_video, youtube_api_video_response)
+    YoutubeVideoTools::add_tags_from_youtube_api_video_reponse(youtube_video, youtube_api_video_response)
 
     begin
       youtube_video.save!
