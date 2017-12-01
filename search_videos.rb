@@ -15,8 +15,10 @@ require_relative './lib/logger'
 require_relative './lib/models/model'
 require_relative './lib/models/youtube_video'
 require_relative './lib/models/search'
+require_relative './lib/youtube_api/youtube_api'
 require_relative './lib/youtube_api/youtube_api_get_video_info'
 require_relative './lib/youtube_api/youtube_api_search'
+require_relative './lib/youtube_api/youtube_api_video'
 require_relative './lib/youtube_search'
 require_relative './lib/youtube_search_result'
 require_relative './lib/youtube_search_result'
@@ -29,9 +31,15 @@ Logger::debug '***************************'
 youtube_search = YoutubeSearch.new
 
 
-def addTags(youtube_video, youtube_video_info)
-  if youtube_video_info.key?('keywords') && !youtube_video_info['keywords'].nil? && youtube_video_info['keywords'][0] != ""
-    youtube_video.tags = youtube_video_info['keywords'].join(", ") + ',reverse,funny'
+def addTags(youtube_video, youtube_api_video_response)
+  if (youtube_api_video_response.key('items') &&
+      youtube_api_video_response['items'].kind_of?(Array) &&
+      youtube_api_video_response['items'].count > 0 &&
+      youtube_api_video_response['items'][0].key('snippet') &&
+      youtube_api_video_response['items'][0]['snippet'].key('tags')
+      youtube_api_video_response['items'][0]['snippet']['tags'].kind_of?(Array) &&
+      youtube_api_video_response['items'][0]['snippet']['tags'].count > 0)
+    youtube_video.tags = youtube_api_video_response['items'][0]['snippet']['tags'].join(",") + ',reverse,funny'
   else
     youtube_video.tags = 'reverse,funny'
   end
@@ -46,8 +54,12 @@ while (search = Search::get_query_with_older_last_search)
 
   if (( ! search.last_search_at.nil?) && (search.last_search_at > 1.day.ago))
     Logger::debug 'All searchs have been searched in the 24 previous hours.'
-    break;
+
+    break
   end
+
+  search.last_search_at = Time.now
+  search.save
 
   youtube_search_results = youtube_search.request search
   Logger::debug 'Total videos: ' + youtube_search_results.length.to_s
@@ -58,8 +70,16 @@ while (search = Search::get_query_with_older_last_search)
     Logger::debug 'youtube_search_result:'
     Logger::debug youtube_search_result.inspect
     youtube_video = YoutubeVideo.new(youtube_search_result.to_hash)
-    youtube_video_info = YoutubeApiGetVideoInfo::submit youtube_search_result.youtube_video_id
-    addTags(youtube_video, youtube_video_info)
+
+    # youtube_video_info = YoutubeApiGetVideoInfo::submit youtube_search_result.youtube_video_id
+
+    parameters = {
+        :key => 'AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es',
+        :part => 'id,snippet',
+        :id => youtube_video.youtube_video_id
+    }
+    youtube_api_video_response = YoutubeApiVideo::get parameters
+    addTags(youtube_video, youtube_api_video_response)
 
     begin
       youtube_video.save!

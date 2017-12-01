@@ -1,20 +1,18 @@
-class YoutubeApiSearch
-  YOUTUBE_SEARCH_LIST_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search'
+class YoutubeApiSearch < YoutubeApi
+  YOUTUBE_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search'
 
-  def self.submit query_string
-    uri = buid_uri(query_string)
-    response = open(uri,  :allow_redirections => :safe).read
-    response_json = JSON.parse(response)
-
-    response_json
+  protected
+  def self.get_default_parameters
+    default_parameters = {
+        :key => 'AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es',
+        :part => 'id,snippet',
+        :maxResults => '50',
+        :type => 'video',
+        :videoDuration => 'short',
+        :videoEmbeddable => 'true',
+        :videoSyndicated => 'true',
+        :videoLicense => 'creativeCommon',
+        :videoDefinition => 'high'
+    }
   end
-
-  def self.buid_uri(query_string)
-    self::YOUTUBE_SEARCH_LIST_ENDPOINT + query_string
-  end
-
-  def self.get_info_video_uri(youtube_video_id)
-    YoutubeApiGetVideoInfo::YOUTUBE_INFO_URI + youtube_video_id
-  end
-
 end

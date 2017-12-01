@@ -31,6 +31,7 @@ require_relative '../lib/exceptions/youtube_trend_with_pending_of_process_status
 require_relative '../lib/exceptions/video_data_for_download_fail_exception'
 require_relative '../lib/exceptions/youtube_upload_limit_exceeded_exception'
 require_relative '../lib/exceptions/youtube_upload_invalid_or_empty_video_title_exception'
+require_relative '../lib/youtube_api/youtube_api'
 require_relative '../lib/youtube_api/youtube_api_get_video_info'
 require_relative 'file_manager'
 require_relative 'youtube_manager'

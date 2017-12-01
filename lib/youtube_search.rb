@@ -9,14 +9,8 @@ class YoutubeSearch
     query_string = build_query_string search
     response = YoutubeApiSearch::submit query_string
     youtube_search_results = create_youtube_search_results_from_parsed_json(response)
-    update_last_search_at_field(search)
 
     youtube_search_results
-  end
-
-  def update_last_search_at_field(search)
-    search.last_search_at = Time.now
-    search.save
   end
 
   def create_youtube_search_results_from_parsed_json(response)
@@ -37,7 +31,28 @@ class YoutubeSearch
   end
 
   def build_query_string(search)
-    query_string = '?key=AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es&part=id,snippet&maxResults=50&type=video&type=video&videoDuration=short&videoEmbeddable=true&videoSyndicated=true&videoLicense=creativeCommon&videoDefinition=high&q=' + search.text
+    default_parameters = get_default_parameters
+    query_string = '?';
+    default_parameters.each do |key, value|
+       query_string += '&' + key.to_s + '=' + value
+    end
+    query_string += '&q=' + search.text
+
+    query_string
+  end
+
+  def get_default_parameters()
+    default_parameters = {
+        :key => 'AIzaSyD7AB8zljxcqkmLQlVtWmBUUEOwm6D98Es',
+        :part => 'id,snippet',
+        :maxResults => '50',
+        :type => 'video',
+        :videoDuration => 'short',
+        :videoEmbeddable => 'true',
+        :videoSyndicated => 'true',
+        :videoLicense => 'creativeCommon',
+        :videoDefinition => 'high'
+    }
   end
 
 end
