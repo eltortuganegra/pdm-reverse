@@ -1,4 +1,4 @@
-class SearchVideosController
+class SearchVideosController < Controller
 
   def run
     youtube_search = YoutubeSearch.new
