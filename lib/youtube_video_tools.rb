@@ -7,9 +7,9 @@ class YoutubeVideoTools
         youtube_api_video_response['items'].count > 0 &&
         youtube_api_video_response['items'][0].key('snippet') &&
         youtube_api_video_response['items'][0]['snippet'].key('tags')
-    youtube_api_video_response['items'][0]['snippet']['tags'].kind_of?(Array) &&
+        youtube_api_video_response['items'][0]['snippet']['tags'].kind_of?(Array) &&
         youtube_api_video_response['items'][0]['snippet']['tags'].count > 0)
-      youtube_video.tags = youtube_api_video_response['items'][0]['snippet']['tags'].join(",") + self::DEFAULT_TAGS
+      youtube_video.tags = youtube_api_video_response['items'][0]['snippet']['tags'].join(",") + ', ' + self::DEFAULT_TAGS
     else
       youtube_video.tags = self::DEFAULT_TAGS
     end
