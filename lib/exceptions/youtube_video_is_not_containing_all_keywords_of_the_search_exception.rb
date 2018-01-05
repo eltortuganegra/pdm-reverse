@@ -1,4 +1,4 @@
-class YoutubeUploadLimitExceededException < StandardError
+class YoutubeVideoIsNotContainingAllKeywordsOfTheSearchException < StandardError
 
 def initialize(message = nil)
     if message.nil?
@@ -9,6 +9,6 @@ def initialize(message = nil)
   end
 
   def getDefaultMessage
-    'Youtube uploadLimitExceeded: The user has exceeded the number of videos they may upload.'
+    'Youtube video: this video is not containing all keywords of the search.'
   end
 end
