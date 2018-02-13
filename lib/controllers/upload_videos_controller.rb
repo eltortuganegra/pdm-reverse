@@ -25,11 +25,11 @@ class UploadVideosController < Controller
   def run
     while true
       begin
-        youtube_video = get_youtube_video_for_upload
-        download_youtube_video(youtube_video)
-        process_the_downloaded_video(youtube_video)
-        upload_processed_video_to_youtube(youtube_video)
-        update_status_to_uploaded_to_youtube(youtube_video)
+        youtube_video = get_youtube_video_pending_for_upload
+        download_youtube_video_file(youtube_video)
+        process_the_downloaded_youtube_video(youtube_video)
+        upload_processed_youtube_video_to_youtube(youtube_video)
+        update_status_to_uploaded_to_youtube_video(youtube_video)
         set_uploaded_date_to_youtube_video(youtube_video)
       rescue VideoHasNotBeenReversed => e
         youtube_video.youtube_video_status_id = YoutubeVideoStatus::ERROR_VIDEO_HAS_NOT_PROCESS
@@ -50,7 +50,7 @@ class UploadVideosController < Controller
     end
   end
 
-  def download_youtube_video(youtube_video)
+  def download_youtube_video_file(youtube_video)
     @downloads_manager.download(youtube_video)
   end
 
@@ -61,7 +61,7 @@ class UploadVideosController < Controller
     Logger::debug youtube_video.inspect
   end
 
-  def get_youtube_video_for_upload
+  def get_youtube_video_pending_for_upload
     youtube_video = YoutubeVideo::get_youtube_video_with_newest_publication_date
     youtube_video.youtube_video_status_id = YoutubeVideoStatus::IN_PROCESS
     youtube_video.save!
@@ -91,10 +91,10 @@ class UploadVideosController < Controller
       Logger::debug ""
       Logger::debug ""
       video = createNewVideo(youtube_trend)
-      download_youtube_video(video)
-      process_the_downloaded_video(video)
-      upload_processed_video_to_youtube(video)
-      update_status_to_uploaded_to_youtube(youtube_trend)
+      download_youtube_video_file(video)
+      process_the_downloaded_youtube_video(video)
+      upload_processed_youtube_video_to_youtube(video)
+      update_status_to_uploaded_to_youtube_video(youtube_trend)
 
     rescue VideoDataForDownloadFailException => e
       Logger::debug 'Video has not been downloaded'
@@ -155,7 +155,7 @@ class UploadVideosController < Controller
     end
   end
 
-  def update_status_to_uploaded_to_youtube(youtube_video)
+  def update_status_to_uploaded_to_youtube_video(youtube_video)
     youtube_video.youtube_video_status_id= YoutubeVideoStatus::UPLOADED_TO_YOUTUBE
     if youtube_video.save
       puts 'Youtube trend status updated to: UPLOADED_TO_YOUTUBE'
@@ -164,7 +164,7 @@ class UploadVideosController < Controller
     end
   end
 
-  def upload_processed_video_to_youtube(youtube_video)
+  def upload_processed_youtube_video_to_youtube(youtube_video)
     Logger::debug 'Uploading video'
     Logger::debug youtube_video.inspect
     file_path = FileManager::get_downloaded_video_path_reversed(youtube_video.youtube_video_id)
@@ -178,7 +178,7 @@ class UploadVideosController < Controller
     insert_video_response
   end
 
-  def process_the_downloaded_video(youtube_video)
+  def process_the_downloaded_youtube_video(youtube_video)
     @converter_manager.convert youtube_video
   end
 
